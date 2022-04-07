@@ -1,5 +1,18 @@
-document.addEventListener("DOMContentLoaded", function () {
-    var map = L.map('map').setView([48.20849, 16.37208], 12);
+var csvDialect = {
+    "dialect": {
+      "csvddfVersion": 1.2,
+      "delimiter": ";",
+      "doubleQuote": true,
+      "lineTerminator": "\r\n",
+      "quoteChar": "\"",
+      "skipInitialSpace": true,
+      "header": true,
+      "commentChar": "#"
+    }
+  }
+
+function createMap() {
+    let map = L.map('map').setView([48.20849, 16.37208], 12);
 
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -10,4 +23,61 @@ document.addEventListener("DOMContentLoaded", function () {
         accessToken: 'pk.eyJ1IjoiamFrb2JwZXIiLCJhIjoiY2wxN3ZjYmZqMTgzcTNvcXp6YTd0dXYwZyJ9.IG2pM_8jQVxb6ohKX9lDzQ'
     }).addTo(map);
 
+    return map
+}
+
+document.addEventListener("DOMContentLoaded", async function () {
+
+    let map = createMap()
+
+    let data = await fetch('./data/nuforc_reports.csv')
+    let dataText = await data.text()
+    let csvData = CSV.parse(dataText, csvDialect)
+    let headings = csvData[0]
+    let parsed = csvData.map((x,index) => {
+        try {
+            let data = x
+            let entry = {}
+            for (let i = 0; i < headings.length && i < data.length; i++) {
+               entry[headings[i]] = data[i] 
+            }
+            return entry;
+        } catch (error) {
+            console.log('parsing failed for line: ' + index)
+           return null 
+        }
+    })
+
+    console.log(parsed[1])
+
+    // get min max, but probably does not work right
+    let minlat = Number.MAX_VALUE
+    let minlong = Number.MAX_VALUE
+    let maxlat = Number.MIN_VALUE
+    let maxlong = Number.MIN_VALUE
+
+    // add first 100 points
+    for (let i = 0; i < 100; i++) {
+        var entry = parsed[i]
+
+        let lat = entry.city_latitude instanceof Number ? entry.city_latitude : parseFloat(entry.city_latitude)
+        let long = entry.city_longitude instanceof Number ? entry.city_longitude : parseFloat(entry.city_longitude)
+        if(!isNaN(lat) && !isNaN(long)) {
+            if(lat < minlat)
+                minlat = lat
+            if(long < minlong)
+                minlong = long
+            if(lat > maxlat)
+                maxlat = lat
+            if(long > maxlong)
+                maxlong = long
+
+            let marker = L.marker([lat, long]).addTo(map)
+        }
+    }
+
+    map.fitBounds([
+        [minlat, minlong],
+        [maxlat, maxlong]
+    ])
 });
