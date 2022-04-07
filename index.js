@@ -12,7 +12,7 @@ var csvDialect = {
   }
 
 function createMap() {
-    let map = L.map('map').setView([48.20849, 16.37208], 12);
+    let map = L.map('map').setView([38.930771, -101.303710], 5);
 
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -24,6 +24,15 @@ function createMap() {
     }).addTo(map);
 
     return map
+}
+
+async function addPoint(entry, map) {
+
+    let lat = entry.city_latitude instanceof Number ? entry.city_latitude : parseFloat(entry.city_latitude)
+    let long = entry.city_longitude instanceof Number ? entry.city_longitude : parseFloat(entry.city_longitude)
+    if(!isNaN(lat) && !isNaN(long)) {
+        let marker = L.marker([lat, long]).addTo(map)
+    }
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -47,37 +56,11 @@ document.addEventListener("DOMContentLoaded", async function () {
            return null 
         }
     })
+    delete csvData
 
     console.log(parsed[1])
-
-    // get min max, but probably does not work right
-    let minlat = Number.MAX_VALUE
-    let minlong = Number.MAX_VALUE
-    let maxlat = Number.MIN_VALUE
-    let maxlong = Number.MIN_VALUE
-
     // add first 100 points
-    for (let i = 0; i < 100; i++) {
-        var entry = parsed[i]
-
-        let lat = entry.city_latitude instanceof Number ? entry.city_latitude : parseFloat(entry.city_latitude)
-        let long = entry.city_longitude instanceof Number ? entry.city_longitude : parseFloat(entry.city_longitude)
-        if(!isNaN(lat) && !isNaN(long)) {
-            if(lat < minlat)
-                minlat = lat
-            if(long < minlong)
-                minlong = long
-            if(lat > maxlat)
-                maxlat = lat
-            if(long > maxlong)
-                maxlong = long
-
-            let marker = L.marker([lat, long]).addTo(map)
-        }
+    for (let i = 0; i < 1000; i++) {
+        addPoint(parsed[i], map)
     }
-
-    map.fitBounds([
-        [minlat, minlong],
-        [maxlat, maxlong]
-    ])
-});
+})
