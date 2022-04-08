@@ -11,8 +11,16 @@ var csvDialect = {
     }
   }
 
+var defaultIcon = {}
+
 function createMap() {
-    let map = L.map('map').setView([38.930771, -101.303710], 5);
+    defaultIcon = L.icon({
+        iconUrl: "shapes/default.svg",
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+    })
+
+    let map = L.map('map', {preferCanvas: true}).setView([38.930771, -101.303710], 5);
 
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -31,7 +39,7 @@ async function addPoint(entry, map) {
     let lat = entry.city_latitude instanceof Number ? entry.city_latitude : parseFloat(entry.city_latitude)
     let long = entry.city_longitude instanceof Number ? entry.city_longitude : parseFloat(entry.city_longitude)
     if(!isNaN(lat) && !isNaN(long)) {
-        let marker = L.marker([lat, long]).addTo(map)
+        let marker = L.marker([lat, long], {icon: defaultIcon}).addTo(map)
     }
 }
 
@@ -39,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let map = createMap()
 
-    let data = await fetch('./data/nuforc_reports.csv')
+    let data = await fetch('./data/nuforc_reports_00')
     let dataText = await data.text()
     let csvData = CSV.parse(dataText, csvDialect)
     let headings = csvData[0]
@@ -63,4 +71,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     for (let i = 0; i < 1000; i++) {
         addPoint(parsed[i], map)
     }
+
+    // get all the shapes
+    let disctinctShapes = [...new Set(parsed.map(x => x.shape))]
+    console.log(disctinctShapes)
 })
