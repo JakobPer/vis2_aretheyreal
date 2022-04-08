@@ -34,10 +34,18 @@ function createMap() {
     return map
 }
 
-async function addPoint(entry, map) {
-
+function getCoords(entry) {
     let lat = entry.city_latitude instanceof Number ? entry.city_latitude : parseFloat(entry.city_latitude)
     let long = entry.city_longitude instanceof Number ? entry.city_longitude : parseFloat(entry.city_longitude)
+
+    return {lat: lat, long: long}
+}
+
+async function addPoint(entry, map) {
+
+    const coords = getCoords(entry)
+    const lat = coords.lat
+    const long = coords.long
     if(!isNaN(lat) && !isNaN(long)) {
         let marker = L.marker([lat, long], {icon: defaultIcon}).addTo(map)
     }
@@ -75,4 +83,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     // get all the shapes
     let disctinctShapes = [...new Set(parsed.map(x => x.shape))]
     console.log(disctinctShapes)
+
+    let projectedCoords = parsed.map(x => {
+        const coords = getCoords(x)
+        if(isNaN(coords.lat) || isNaN(coords.long))
+            return null
+        return map.project([coords.lat, coords.long])
+    })
+    console.log(projectedCoords)
 })
