@@ -47,7 +47,8 @@ async function addPoint(entry, map) {
     const lat = coords.lat
     const long = coords.long
     if(!isNaN(lat) && !isNaN(long)) {
-        let marker = L.marker([lat, long], {icon: defaultIcon}).addTo(map)
+        let marker = L.marker([lat, long], {icon: defaultIcon})
+        map.addLayer(marker)
     }
 }
 
@@ -55,7 +56,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let map = createMap()
 
-    let data = await fetch('./data/nuforc_reports_00')
+    let data = await fetch('./data/nuforc_reports.csv')
     let dataText = await data.text()
     let csvData = CSV.parse(dataText, csvDialect)
     let headings = csvData[0]
@@ -74,11 +75,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     })
     delete csvData
 
+    let markers = L.markerClusterGroup()
+
     console.log(parsed[1])
     // add first 100 points
-    for (let i = 0; i < 1000; i++) {
-        addPoint(parsed[i], map)
+    for (let i = 0; i < parsed.length; i++) {
+        addPoint(parsed[i], markers)
     }
+
+    map.addLayer(markers);
 
     // get all the shapes
     let disctinctShapes = [...new Set(parsed.map(x => x.shape))]
