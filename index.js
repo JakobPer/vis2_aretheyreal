@@ -1,4 +1,4 @@
-import {rectangle} from "rectangle";
+import {rectangle, rearrange} from "./rectangle.js";
 
 var csvDialect = {
     "dialect": {
@@ -44,24 +44,20 @@ function getCoords(entry) {
 }
 
 async function addPoint(entry, map) {
-
-    const coords = getCoords(entry)
-    const lat = coords.lat
-    const long = coords.long
-    if(!isNaN(lat) && !isNaN(long)) {
-        let marker = L.marker([lat, long], {icon: defaultIcon})
-        map.addLayer(marker)
-    }
+    let marker = L.marker([entry.city_latitude, entry.city_longitude], {icon: defaultIcon})
+    map.addLayer(marker)
+    return marker;
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
 
     let map = createMap()
 
-    let data = await fetch('./data/nuforc_reports_01')
+    let data = await fetch('./data/nuforc_reports_00')
     let dataText = await data.text()
     let csvData = CSV.parse(dataText, csvDialect)
     let headings = csvData[0]
+    // parse csv data and filter invalid entries
     let parsed = csvData.map((x,index) => {
         try {
             let data = x
@@ -69,35 +65,39 @@ document.addEventListener("DOMContentLoaded", async function () {
             for (let i = 0; i < headings.length && i < data.length; i++) {
                entry[headings[i]] = data[i] 
             }
+            let coords = getCoords(entry);
+            entry.city_latitude = coords.lat;
+            entry.city_longitude = coords.long;
             return entry;
         } catch (error) {
             console.log('parsing failed for line: ' + index)
            return null 
         }
+    }).filter((x,i,a) => {
+        return !(isNaN(x.city_latitude) && isNaN(x.city_longitude))
     })
 
-    let markers = L.markerClusterGroup()
+    let cluster = L.markerClusterGroup()
 
-    console.log(parsed[1])
-    // add first 100 points
-    for (let i = 0; i < 100; i++) {
-        addPoint(parsed[i], markers)
-    }
+    let markers = parsed.map((x, i) => {
+        return addPoint(parsed[i], cluster)
+    })
 
-    map.addLayer(markers);
+    map.addLayer(cluster);
 
     // get all the shapes
     let disctinctShapes = [...new Set(parsed.map(x => x.shape))]
-    console.log(disctinctShapes)
 
     let projectedCoords = parsed.map(x => {
-        const coords = getCoords(x)
-        if(isNaN(coords.lat) || isNaN(coords.long))
-            return null
-        return map.project([coords.lat, coords.long])
+        return map.project([x.city_latitude, x.city_longitude])
     })
-    console.log(projectedCoords)
 
-    let rects = projectedCoords.map(x => new rectangle(x.lat, x.long, 1, 1));
-    console.log(rects)
+    let rects = projectedCoords.map(x => {
+        if (x != null) {
+            return new rectangle(x.x, x.y, 1, 1);
+        }
+        return null;
+    });
+
+    rearrange(rects)
 })
