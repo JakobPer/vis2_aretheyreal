@@ -82,6 +82,29 @@ function lineIntersecions(rectangles) {
         intersections = intersections.concat(unique.map(x => {return {a: x, b: p.i}}));
     })
 
+    // create unique pairs
+    let uniqueMap = new Map();
+
+    intersections.forEach((x,i) => {
+        if(uniqueMap.has(x.a)) {
+            uniqueMap.get(x.a).add(x.b)
+        }
+        else if(uniqueMap.has(x.b)) {
+            uniqueMap.get(x.b).add(x.a)
+        }
+        else {
+            uniqueMap.set(x.a, new Set([x.b]))
+        }
+    })
+
+    intersections =[]
+
+    uniqueMap.forEach((val,k) => {
+        val.forEach(v => {
+            intersections.push({a: k, b: v})
+        })
+    })
+
     return intersections;
 }
 
