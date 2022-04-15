@@ -1,3 +1,5 @@
+import {rectangle} from "rectangle";
+
 var csvDialect = {
     "dialect": {
       "csvddfVersion": 1.2,
@@ -56,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let map = createMap()
 
-    let data = await fetch('./data/nuforc_reports.csv')
+    let data = await fetch('./data/nuforc_reports_01')
     let dataText = await data.text()
     let csvData = CSV.parse(dataText, csvDialect)
     let headings = csvData[0]
@@ -73,13 +75,12 @@ document.addEventListener("DOMContentLoaded", async function () {
            return null 
         }
     })
-    delete csvData
 
     let markers = L.markerClusterGroup()
 
     console.log(parsed[1])
     // add first 100 points
-    for (let i = 0; i < parsed.length; i++) {
+    for (let i = 0; i < 100; i++) {
         addPoint(parsed[i], markers)
     }
 
@@ -96,4 +97,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         return map.project([coords.lat, coords.long])
     })
     console.log(projectedCoords)
+
+    let rects = projectedCoords.map(x => new rectangle(x.lat, x.long, 1, 1));
+    console.log(rects)
 })
