@@ -15,12 +15,51 @@ var csvDialect = {
 
 var defaultIcon = {}
 
+const iconPaths = {
+    "light": "shapes/light.svg",
+    "triangle": "shapes/triangle.svg",
+    "circle": "shapes/circle.svg",
+    "unknown": "shapes/default.svg",
+    "oval": "shapes/oval.svg",
+    "other": "shapes/default.svg",
+    "formation": "shapes/formation.svg",
+    "sphere": "shapes/sphere.svg",
+    "diamond": "shapes/diamond.svg",
+    "flash": "shapes/flash.svg",
+    "disk": "shapes/disk.svg",
+    "delta": "shapes/delta.svg",
+    "cigar": "shapes/cigar.svg",
+    "fireball": "shapes/fireball.svg",
+    "changing": "shapes/changing.svg",
+    "rectangle": "shapes/rectangle.svg",
+    "egg": "shapes/egg.svg",
+    "chevron": "shapes/delta.svg",
+    "cross": "shapes/cross.svg",
+    "cylinder": "shapes/cylinder.svg",
+    "cone": "shapes/cone.svg",
+    "teardrop": "shapes/teardrop.svg"
+}
+
+var icons = {}
+
+function createIcons() {
+    for(const p in iconPaths) {
+        icons[p] = L.icon({
+            iconUrl: iconPaths[p],
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        })
+    }
+}
+
 function createMap() {
     defaultIcon = L.icon({
         iconUrl: "shapes/default.svg",
         iconSize: [32, 32],
         iconAnchor: [16, 16]
     })
+
+    createIcons();
 
     let map = L.map('map', {preferCanvas: true}).setView([38.930771, -101.303710], 5);
 
@@ -44,7 +83,8 @@ function getCoords(entry) {
 }
 
 async function addPoint(entry, map) {
-    let marker = L.marker([entry.city_latitude, entry.city_longitude], {icon: defaultIcon})
+    let icon = icons[entry.shape] ?? defaultIcon;
+    let marker = L.marker([entry.city_latitude, entry.city_longitude], {icon: icon})
     map.addLayer(marker)
     return marker;
 }
@@ -87,6 +127,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // get all the shapes
     let disctinctShapes = [...new Set(parsed.map(x => x.shape))]
+    console.log(disctinctShapes)
 
     let projectedCoords = parsed.map(x => {
         return map.project([x.city_latitude, x.city_longitude])

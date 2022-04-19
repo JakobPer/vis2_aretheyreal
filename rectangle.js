@@ -117,9 +117,6 @@ export function rearrange(rectangles) {
     x_rank.forEach((x,i) => rectangles[i].x_rank = x);
     y_rank.forEach((x,i) => rectangles[i].y_rank = x);
 
-    console.log(x_rank);
-    console.log(y_rank);
-
     let lineInts = lineIntersecions(rectangles);
 
     let testIntersections = [];
