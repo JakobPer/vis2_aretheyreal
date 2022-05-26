@@ -1,4 +1,4 @@
-import {rectangle, rearrange, bruteForceIntersections} from "./rectangle.js";
+import {rectangle, rearrange, bruteForceIntersections, lineIntersecions} from "./rectangle.js";
 
 var csvDialect = {
     "dialect": {
@@ -145,12 +145,28 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let rects = projectedCoords.map(x => {
         if (x != null) {
-            return new rectangle(x.x, x.y, Math.random()*5, Math.random()*5);
+            //return new rectangle(x.x, x.y, Math.random()*5, Math.random()*5);
+            return new rectangle(x.x, x.y, 1,1);
         }
         return null;
     });
 
     const intersections = bruteForceIntersections(rects)
+
+    // TEST INTERSECTIONS
+    /*
+    const lineIts = lineIntersecions(rects);
+    console.log(intersections.length)
+    console.log(lineIts.length)
+    lineIts.forEach((s,i) => {
+        if(!rects[s.a].intersects(rects[s.b])){
+            console.log("wtf");
+            console.log(rects[s.a])
+            console.log(rects[s.b])
+        }
+    })
+    */
+    // ENDTEST
 
     console.log(markers[0]);
     intersections.forEach((i) => {

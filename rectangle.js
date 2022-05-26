@@ -18,6 +18,22 @@ export class rectangle {
         return {x: this.x + this.w/2, y: this.y + this.h/2}
     }
 
+    left() {
+        return this.x - this.w / 2;
+    }
+
+    right() {
+        return this.x + this.w / 2;
+    }
+
+    top() {
+        return this.y + this.h / 2;
+    }
+
+    bottom() {
+        return this.y - this.h / 2;
+    }
+
     point () {
         return [this.x, this.y];
     }
@@ -78,12 +94,12 @@ function sortedYIndex(array, value) {
     return low;
 }
 
-function lineIntersecions(rectangles) {
+export function lineIntersecions(rectangles) {
     let Q = [];
     // build a set of all horizontal extents of the rects to perform line sweep
-    rectangles.forEach((x,i) => {
-        Q.push({i: i, x: x.x - x.w/2, left: true});
-        Q.push({i: i, x: x.x + x.w/2, left: false});
+    rectangles.forEach((r,i) => {
+        Q.push({i: i, x: r.left(), left: true});
+        Q.push({i: i, x: r.right(), left: false});
     });
     // sort them by their x pos
     Q.sort((a, b) => a.x < b.x ? -1 : a.x > b.x | 0);
@@ -95,8 +111,8 @@ function lineIntersecions(rectangles) {
         let rect = rectangles[p.i];
         if(p.left) {
             // add the horizontal lines sorted by y to R
-            let top = {i: p.i, y: rect.y + rect.h/2, top: true}
-            let bottom = {i: p.i, y: rect.y - rect.h/2, top: false}
+            let top = {i: p.i, y: rect.top(), top: true}
+            let bottom = {i: p.i, y: rect.bottom(), top: false}
             // R needs to be sorted by y coords, do a sorted insert with binary search
             // splice is apparently really fast at inserting elements
             R.splice(sortedYIndex(R, top), 0, top);
@@ -108,7 +124,7 @@ function lineIntersecions(rectangles) {
             R.splice(R.findIndex(x => x.i === p.i), 1)
         }
         // now all the "horizontal lines" that are in the vertical space of the current rect are intersecting
-        let its = R.filter(x => x.y <= rect.y + rect.h/2 && x.y >= rect.y - rect.h/2 && x.i != p.i)
+        let its = R.filter(e => e.y <= rect.top() && e.y >= rect.bottom() && e.i != p.i)
         let unique = [...new Set(its.map(x => x.i))];
         intersections = intersections.concat(unique.map(x => {return {a: x, b: p.i}}));
     })
@@ -118,10 +134,14 @@ function lineIntersecions(rectangles) {
 
     intersections.forEach((x,i) => {
         if(uniqueMap.has(x.a)) {
-            uniqueMap.get(x.a).add(x.b)
+            if(!(uniqueMap.has(x.b) && uniqueMap.get(x.b).has(x.a))) {
+                uniqueMap.get(x.a).add(x.b)
+            }
         }
         else if(uniqueMap.has(x.b)) {
-            uniqueMap.get(x.b).add(x.a)
+            if(!(uniqueMap.has(x.a) && uniqueMap.get(x.a).has(x.b))) {
+                uniqueMap.get(x.b).add(x.a)
+            }
         }
         else {
             uniqueMap.set(x.a, new Set([x.b]))
