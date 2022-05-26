@@ -6,6 +6,8 @@ export class rectangle {
         this.h = h
         this.x_rank = 0
         this.y_rank = 0
+        this._orig_x = x;
+        this._orig_y = y;
     }
 
     min() {
@@ -16,21 +18,50 @@ export class rectangle {
         return {x: this.x + this.w/2, y: this.y + this.h/2}
     }
 
+    point () {
+        return [this.x, this.y];
+    }
+
+    original_point() {
+        return [this._orig_x, this._orig_y];
+    }
+
     intersects(rectangle) {
         let minA = this.min();
         let maxA = this.max();
         let minB = rectangle.min();
         let maxB = rectangle.max();
-        return !(maxB.x < minA.x || minB.x > maxA.x || maxB.y < minA.y || minB.y > minA.y)
+        return !(maxB.x <= minA.x || minB.x >= maxA.x || maxB.y <= minA.y || minB.y >= maxA.y)
     }
-}
 
-class sortPoint {
-    constructor(rectIndex, x, isVertical, isLeft) {
-        this.rectIndex = rectIndex;
-        this.x = x;
-        this.isVertical = isVertical;
-        this.isLeft = isLeft;
+    xOverlap(other)
+    {
+        if(this.x === other.x) {
+            return Infinity;
+        }
+
+        if(this.x_rank < other.x_rank)
+        {
+            return (this.x + this.w/2) - (other.x - other.w/2)
+        }
+        else {
+            return (other.x + other.w/2) - (this.x - this.w/2)
+        }
+    }
+
+    yOverlap(other)
+    {
+        if(this.y === other.y) {
+            return Infinity;
+        }
+
+        if(this.y_rank < other.y_rank)
+        {
+            return (this.y + this.h/2) - (other.y - other.h/2)
+        }
+        else {
+            return (other.y + other.h/2) - (this.y - this.h/2)
+        }
     }
 }
 
@@ -124,7 +155,46 @@ export function bruteForceIntersections(rectangles) {
     return testIntersections
 }
 
-export function rearrange(rectangles) {
+function removeOverlap(r1, r2, t0 = 0.1) {
+    let xOverlap = r1.xOverlap(r2);
+    xOverlap = xOverlap < t0 && xOverlap > 0 ? t0 : xOverlap;
+    let yOverlap = r1.yOverlap(r2);
+    yOverlap = yOverlap < t0 && yOverlap > 0 ? t0 : yOverlap;
+
+    if(xOverlap < yOverlap && xOverlap > 0 && xOverlap < Infinity) {
+        if(r1.x_rank < r2.x_rank) {
+            r1.x -= xOverlap / 2;
+            r2.x += xOverlap / 2;
+        }
+        else {
+            r1.x += xOverlap / 2;
+            r2.x -= xOverlap / 2;
+        }
+    }
+    else if(yOverlap > 0 && yOverlap < Infinity) {
+        if(r1.y_rank < r2.y_rank) {
+            r1.y -= yOverlap / 2;
+            r2.y += yOverlap / 2;
+        }
+        else {
+            r1.y += yOverlap / 2;
+            r2.y -= yOverlap / 2;
+        }
+    }
+}
+
+// https://www.w3docs.com/snippets/javascript/how-to-randomize-shuffle-a-javascript-array.html
+function shuffleArray(arr) {
+  arr.sort(() => Math.random() - 0.5);
+}
+
+function repairOrder(rectangles, left, right) {
+    // todo
+}
+
+export async function rearrange(rectangles) {
+    const startTime = new Date().getTime();
+
     let x_rank = Array.from(Array(rectangles.length).keys())
         .sort((a, b) => rectangles[a].x < rectangles[b].x ? -1 : (rectangles[b].x < rectangles[a].x) | 0);
     let y_rank = Array.from(Array(rectangles.length).keys())
@@ -133,4 +203,25 @@ export function rearrange(rectangles) {
     x_rank.forEach((x,i) => rectangles[i].x_rank = x);
     y_rank.forEach((x,i) => rectangles[i].y_rank = x);
 
+    let P = bruteForceIntersections(rectangles);
+    //let P = lineIntersecions(rectangles);
+
+    while(P.length > 0) {
+        console.log(P.length)
+        shuffleArray(P);
+        
+        P.forEach((pair) => {
+            removeOverlap(rectangles[pair.a], rectangles[pair.b]);
+        })
+
+        repairOrder(rectangles, 0, rectangles.length-1);
+
+        P = bruteForceIntersections(rectangles);
+        //P = lineIntersecions(rectangles);
+    }
+
+    const endTime = new Date().getTime();
+
+    console.log("done with rearrange")
+    console.log(endTime-startTime)
 }

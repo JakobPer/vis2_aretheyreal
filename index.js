@@ -104,6 +104,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     let csvData = CSV.parse(dataText, csvDialect)
     let headings = csvData[0]
     // parse csv data and filter invalid entries
+    csvData = csvData.slice(0,3000); // for testing
     let parsed = csvData.map((x,index) => {
         try {
             let data = x
@@ -112,8 +113,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                entry[headings[i]] = data[i] 
             }
             let coords = getCoords(entry);
-            entry.city_latitude = coords.lat;
-            entry.city_longitude = coords.long;
+            entry.city_latitude = coords.lat + (Math.random()-0.5)/50;
+            entry.city_longitude = coords.long+ (Math.random()-0.5)/50;
             return entry;
         } catch (error) {
             console.log('parsing failed for line: ' + index)
@@ -144,7 +145,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let rects = projectedCoords.map(x => {
         if (x != null) {
-            return new rectangle(x.x, x.y, 1, 1);
+            return new rectangle(x.x, x.y, Math.random()*5, Math.random()*5);
         }
         return null;
     });
@@ -156,4 +157,16 @@ document.addEventListener("DOMContentLoaded", async function () {
         markers[i.a].options.icon = redIcon;
         markers[i.b].options.icon = redIcon;
     });
+
+    await rearrange(rects)
+
+    rects.forEach((rect) => {
+        const start = map.unproject(rect.original_point());
+        const end = map.unproject(rect.point());
+        const p1 = map.unproject([rect.x - rect.w/2, rect.y - rect.h/2])
+        const p2 = map.unproject([rect.x + rect.w/2, rect.y + rect.h/2])
+        L.polyline([start, end], {color: 'green'}).addTo(map);
+        L.rectangle([p1, p2]).addTo(map);
+    })
+
 })
