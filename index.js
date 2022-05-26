@@ -1,4 +1,4 @@
-import {rectangle, rearrange} from "./rectangle.js";
+import {rectangle, rearrange, bruteForceIntersections} from "./rectangle.js";
 
 var csvDialect = {
     "dialect": {
@@ -41,6 +41,7 @@ const iconPaths = {
 }
 
 var icons = {}
+var redIcon = {}
 
 function createIcons() {
     for(const p in iconPaths) {
@@ -50,6 +51,11 @@ function createIcons() {
             iconAnchor: [16, 16]
         })
     }
+    redIcon = L.icon({
+        iconUrl: "shapes/default_red.svg",
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+    })
 }
 
 function createMap() {
@@ -93,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let map = createMap()
 
-    let data = await fetch('./data/nuforc_reports_00')
+    let data = await fetch('./data/data.csv')
     let dataText = await data.text()
     let csvData = CSV.parse(dataText, csvDialect)
     let headings = csvData[0]
@@ -114,20 +120,23 @@ document.addEventListener("DOMContentLoaded", async function () {
            return null 
         }
     }).filter((x,i,a) => {
-        return !(isNaN(x.city_latitude) && isNaN(x.city_longitude))
+        return !(isNaN(x.city_latitude) || isNaN(x.city_longitude))
     })
 
     let cluster = L.markerClusterGroup()
 
-    let markers = parsed.map((x, i) => {
+    let markers = await Promise.all(parsed.map((x, i) => {
         return addPoint(parsed[i], cluster)
-    })
+    }))
 
     map.addLayer(cluster);
+    console.log(cluster)
 
     // get all the shapes
+    /*
     let disctinctShapes = [...new Set(parsed.map(x => x.shape))]
     console.log(disctinctShapes)
+    */
 
     let projectedCoords = parsed.map(x => {
         return map.project([x.city_latitude, x.city_longitude])
@@ -140,5 +149,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         return null;
     });
 
-    rearrange(rects)
+    const intersections = bruteForceIntersections(rects)
+
+    console.log(markers[0]);
+    intersections.forEach((i) => {
+        markers[i.a].options.icon = redIcon;
+        markers[i.b].options.icon = redIcon;
+    });
 })

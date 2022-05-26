@@ -7,7 +7,7 @@
    viewBox="0 0 32 32"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    sodipodi:docname="cigar.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -28,7 +28,7 @@
      inkscape:guide-bbox="true"
      inkscape:zoom="25.25"
      inkscape:cx="12.792079"
-     inkscape:cy="17.148515"
+     inkscape:cy="17.188119"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="-8"
@@ -37,7 +37,9 @@
      inkscape:current-layer="layer1"
      inkscape:snap-object-midpoints="false"
      inkscape:snap-bbox-midpoints="true"
-     inkscape:object-paths="true">
+     inkscape:object-paths="true"
+     inkscape:showpageshadow="0"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
        position="16,16"
        orientation="0,1"
@@ -153,7 +155,7 @@
      id="layer1">
     <path
        id="rect1045"
-       style="fill:#ffffff;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+       style="fill:none;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
        transform="rotate(-45)"
        d="m -11.940594,18.488804 23.881188,0 c 2.330668,2.873699 2.224175,5.627537 0,8.277227 h -23.881188 c -2.636327,-2.797283 -2.515872,-5.554613 0,-8.277227 z"
        sodipodi:nodetypes="ccccc" />

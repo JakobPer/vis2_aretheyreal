@@ -108,6 +108,22 @@ function lineIntersecions(rectangles) {
     return intersections;
 }
 
+export function bruteForceIntersections(rectangles) {
+    let testIntersections = [];
+    
+    rectangles.forEach((x,i) => {
+        for(let j = i; j < rectangles.length; j++) {
+            if(i==j)
+                continue;
+            if(rectangles[i].intersects(rectangles[j])){
+                testIntersections.push({a: i, b: j})
+            }
+        }
+    })
+
+    return testIntersections
+}
+
 export function rearrange(rectangles) {
     let x_rank = Array.from(Array(rectangles.length).keys())
         .sort((a, b) => rectangles[a].x < rectangles[b].x ? -1 : (rectangles[b].x < rectangles[a].x) | 0);
@@ -117,30 +133,4 @@ export function rearrange(rectangles) {
     x_rank.forEach((x,i) => rectangles[i].x_rank = x);
     y_rank.forEach((x,i) => rectangles[i].y_rank = x);
 
-    let lineInts = lineIntersecions(rectangles);
-
-    let testIntersections = [];
-    let testNotIntersections = [];
-
-    rectangles.forEach((x,i) => {
-        for(let j = i; j < rectangles.length; j++) {
-            if(i==j)
-                continue;
-            if(rectangles[i].intersects(rectangles[j])){
-                testIntersections.push({a: i, b: j})
-            }
-            else {
-                testNotIntersections.push({a: i, b: j})
-            }
-        }
-    })
-
-    lineInts.forEach(x => {
-        let test = rectangles[x.a].intersects(rectangles[x.b]);
-        if(!test) {
-            console.log("no intersection")
-            console.log(rectangles[x.a]);
-            console.log(rectangles[x.b]);
-        }
-    })
 }
