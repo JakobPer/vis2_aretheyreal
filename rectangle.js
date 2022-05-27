@@ -208,8 +208,92 @@ function shuffleArray(arr) {
   arr.sort(() => Math.random() - 0.5);
 }
 
-function repairOrder(rectangles, left, right) {
-    // todo
+function repairOrder(rectangles,d, left, right) {
+    if(left < right){
+        //split
+
+        let mid = Math.floor((left+right-1)/2);
+        repairOrder(rectangles, d, left, mid);
+        repairOrder(rectangles, d, mid+1, right);
+        let rectangles_new = [...rectangles];
+        //merge with rearrange
+        let i = left;
+        let j = mid+1;
+        let k = left;
+        // x dimension
+        if(d === 0) {
+            while (i <= mid && j <= right) {
+                //in order
+                if (rectangles[i].x_rank < rectangles[j].x_rank) {
+                    rectangles_new[k] = rectangles[i];
+                    i++;
+                    k++;
+                } else {
+                    let cavg = 0;
+                    let count = 0
+                    let cr = rectangles[i].x_rank;
+                    let group = [];
+                    while (i <= mid) {
+                        group.push(rectangles[i]);
+                        cavg += rectangles[i].x;
+                        count++;
+                        i++;
+                    }
+                    while (rectangles[j].x_rank === cr) {
+                        group.push(rectangles[j]);
+                        cavg += rectangles[j].x;
+                        count++;
+                        rectangles_new[k] = rectangles[j];
+                        j++;
+                        k++;
+                    }
+
+                    cavg /= count;
+                    group.forEach(r => r.x = cavg);
+                }
+            }
+        }
+        else{
+            // y dimension
+            while (i <= mid && j <= right) {
+                //in order
+                if (rectangles[i].y_rank < rectangles[j].y_rank) {
+                    rectangles_new[k] = rectangles[i];
+                    i++;
+                    k++;
+                } else {
+                    let cavg = 0;
+                    let count = 0
+                    let cr = rectangles[i].y_rank;
+                    let group = [];
+                    while (i <= mid) {
+                        group.push(rectangles[i]);
+                        cavg += rectangles[i].y;
+                        count++;
+                        i++;
+                    }
+                    while (rectangles[j].y_rank === cr) {
+                        group.push(rectangles[j]);
+                        cavg += rectangles[j].y;
+                        count++;
+                        rectangles_new[k] = rectangles[j];
+                        j++;
+                        k++;
+                    }
+
+                    cavg /= count;
+                    group.forEach(r => r.y = cavg);
+                }
+            }
+        }
+        for(let h=i; h<=mid; h++) {
+            rectangles[k + h - i] = rectangles[h];
+        }
+        for(let h=left; h<k; h++) {
+            rectangles[h] = rectangles_new[h];
+        }
+    }
+
 }
 
 export async function rearrange(rectangles) {
@@ -225,7 +309,7 @@ export async function rearrange(rectangles) {
 
     let P = bruteForceIntersections(rectangles);
     //let P = lineIntersecions(rectangles);
-
+    let d = 0;
     while(P.length > 0) {
         console.log(P.length)
         shuffleArray(P);
@@ -233,11 +317,13 @@ export async function rearrange(rectangles) {
         P.forEach((pair) => {
             removeOverlap(rectangles[pair.a], rectangles[pair.b]);
         })
-
-        repairOrder(rectangles, 0, rectangles.length-1);
+        //repairOrder(rectangles, 0,0, rectangles.length-1);
+        repairOrder(rectangles, 1,0, rectangles.length-1);
+        d++;
 
         P = bruteForceIntersections(rectangles);
         //P = lineIntersecions(rectangles);
+
     }
 
     const endTime = new Date().getTime();
