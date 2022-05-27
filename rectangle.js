@@ -161,7 +161,7 @@ export function lineIntersecions(rectangles) {
 
 export function bruteForceIntersections(rectangles) {
     let testIntersections = [];
-    
+
     rectangles.forEach((x,i) => {
         for(let j = i; j < rectangles.length; j++) {
             if(i==j)
@@ -186,7 +186,7 @@ function removeOverlap(r1, r2, t0 = 0.1) {
         yOverlap = t0;
     }
 
-    if((xOverlap > 0 && xOverlap < Infinity) && 
+    if((xOverlap > 0 && xOverlap < Infinity) &&
         ((xOverlap < yOverlap && yOverlap > 0) || yOverlap <= 0)) {
         if(r1.x_rank < r2.x_rank) {
             r1.x -= xOverlap / 2;
@@ -211,21 +211,21 @@ function removeOverlap(r1, r2, t0 = 0.1) {
 
 // https://www.w3docs.com/snippets/javascript/how-to-randomize-shuffle-a-javascript-array.html
 function shuffleArray(arr) {
-  arr.sort(() => Math.random() - 0.5);
+    arr.sort(() => Math.random() - 0.5);
 }
 
-function repairOrder(rectangles,d, left, right) {
+function repairOrder(rectangles,d, left, right, isordered) {
     if(left < right){
         //split
-        let mid = Math.floor((left+right-1)/2);
-        repairOrder(rectangles, d, left, mid);
-        repairOrder(rectangles, d, mid+1, right);
-
+        let mid = Math.floor((left+right)-1/2);
+        repairOrder(rectangles, d, left, mid, isordered);
+        repairOrder(rectangles, d, mid+1, right, isordered);
         let rectangles_new = [...rectangles];
         //merge with rearrange
         let i = left;
         let j = mid+1;
         let k = left;
+
         // x dimension
         if(d === 0) {
             while (i <= mid && j <= right) {
@@ -235,16 +235,19 @@ function repairOrder(rectangles,d, left, right) {
                     i++;
                     k++;
                 } else {
+                    isordered[0] = false;
                     let cavg = 0;
                     let count = 0
                     let cr = rectangles[i].x_rank;
                     let group = [];
                     while (i <= mid) {
+
                         group.push(rectangles[i]);
                         cavg += rectangles[i].x;
                         count++;
                         i++;
                     }
+
                     while (rectangles[j].x_rank === cr) {
                         group.push(rectangles[j]);
                         cavg += rectangles[j].x;
@@ -267,6 +270,7 @@ function repairOrder(rectangles,d, left, right) {
                     i++;
                     k++;
                 } else {
+                    isordered[0] = false;
                     let cavg = 0;
                     let count = 0
                     let cr = rectangles[i].y_rank;
@@ -286,7 +290,6 @@ function repairOrder(rectangles,d, left, right) {
                         j++;
                         k++;
                     }
-
                     cavg /= count;
                     group.forEach(r => r.y = cavg);
                 }
@@ -302,38 +305,180 @@ function repairOrder(rectangles,d, left, right) {
 
 }
 
+function mergeSortAllX(sorted) {
+    var n = sorted.length,
+        buffer = new Array(n);
+
+    for (var size = 1; size < n; size *= 2) {
+        for (var leftStart = 0; leftStart < n; leftStart += 2*size) {
+            var left = leftStart,
+                right = Math.min(left + size, n),
+                leftLimit = right,
+                rightLimit = Math.min(right + size, n),
+                i = left;
+            while (left < leftLimit && right < rightLimit) {
+                if (sorted[left].x_rank < sorted[right].x_rank) {
+                    buffer[i++] = sorted[left++];
+                } else {
+                    sorted[left].x = (sorted[left].x + sorted[right].x)/2;
+                    sorted[right].x = sorted[left].x;
+                    buffer[i++] = sorted[right++];
+                }
+            }
+            while (left < leftLimit) {
+                buffer[i++] = sorted[left++];
+            }
+            while (right < rightLimit) {
+                buffer[i++] = sorted[right++];
+            }
+        }
+        var temp = sorted,
+            sorted = buffer,
+            buffer = temp;
+    }
+}
+function mergeSortAllY(sorted) {
+    var n = sorted.length,
+        buffer = new Array(n);
+
+    for (var size = 1; size < n; size *= 2) {
+        for (var leftStart = 0; leftStart < n; leftStart += 2*size) {
+            var left = leftStart,
+                right = Math.min(left + size, n),
+                leftLimit = right,
+                rightLimit = Math.min(right + size, n),
+                i = left;
+            while (left < leftLimit && right < rightLimit) {
+                if (sorted[left].y_rank < sorted[right].y_rank) {
+                    buffer[i++] = sorted[left++];
+                } else {
+                    sorted[left].y = (sorted[left].y + sorted[right].y)/2;
+                    sorted[right].y = sorted[left].y;
+                    buffer[i++] = sorted[right++];
+                }
+            }
+            while (left < leftLimit) {
+                buffer[i++] = sorted[left++];
+            }
+            while (right < rightLimit) {
+                buffer[i++] = sorted[right++];
+            }
+        }
+        var temp = sorted,
+            sorted = buffer,
+            buffer = temp;
+    }
+}
+function mergeX(left, right) {
+    let arr = []
+    // Break out of loop if any one of the array gets empty
+    while (left.length && right.length) {
+        // Pick the smaller among the smallest element of left and right sub arrays
+        if (left[0].x < right[0].x) {
+            arr.push(left.shift())
+        } else {
+            arr.push(right.shift())
+        }
+    }
+
+    // Concatenating the leftover elements
+    // (in case we didn't go through the entire left or right array)
+    return [ ...arr, ...left, ...right ]
+}
+
+function mergeY(left, right) {
+    let arr = []
+    // Break out of loop if any one of the array gets empty
+    while (left.length && right.length) {
+        // Pick the smaller among the smallest element of left and right sub arrays
+        if (left[0].y < right[0].y) {
+            arr.push(left.shift())
+        } else {
+            arr.push(right.shift())
+        }
+    }
+
+    // Concatenating the leftover elements
+    // (in case we didn't go through the entire left or right array)
+    return [ ...arr, ...left, ...right ]
+}
+
+function mergeSortX(array) {
+    const half = array.length / 2
+
+    // Base case or terminating case
+    if(array.length < 2){
+        return array
+    }
+
+    const left = array.splice(0, half)
+    return mergeX(mergeSortX(left),mergeSortX(array))
+}
+
+function mergeSortY(array) {
+    const half = array.length / 2
+
+    // Base case or terminating case
+    if(array.length < 2){
+        return array
+    }
+
+    const left = array.splice(0, half)
+    return mergeY(mergeSortY(left),mergeSortY(array))
+}
+
 export async function rearrange(rectangles) {
     const startTime = new Date().getTime();
+    let rectangles_sorted = mergeSortX(rectangles.slice());
+    console.log(rectangles_sorted);
+    let x_rank = Array.from(Array(rectangles_sorted.length).keys())
+        .sort((a, b) => rectangles_sorted[a].x < rectangles_sorted[b].x ? -1 : (rectangles_sorted[b].x < rectangles_sorted[a].x) | 0);
 
-    let x_rank = Array.from(Array(rectangles.length).keys())
-        .sort((a, b) => rectangles[a].x < rectangles[b].x ? -1 : (rectangles[b].x < rectangles[a].x) | 0);
-    let y_rank = Array.from(Array(rectangles.length).keys())
-        .sort((a, b) => rectangles[a].y < rectangles[b].y ? -1 : (rectangles[b].y < rectangles[a].y) | 0);
 
-    x_rank.forEach((x,i) => rectangles[i].x_rank = x);
-    y_rank.forEach((x,i) => rectangles[i].y_rank = x);
-    let P = bruteForceIntersections(rectangles);
-    //let P = lineIntersecions(rectangles);
+    x_rank.forEach((x,i) => rectangles_sorted[i].x_rank = x);
+
+    rectangles_sorted = mergeSortY(rectangles.slice());
+    let y_rank = Array.from(Array(rectangles_sorted.length).keys())
+        .sort((a, b) => rectangles_sorted[a].y < rectangles_sorted[b].y ? -1 : (rectangles_sorted[b].y < rectangles_sorted[a].y) | 0);
+    y_rank.forEach((x,i) => rectangles_sorted[i].y_rank = x);
+
+    console.log(rectangles_sorted);
+    let P = bruteForceIntersections(rectangles_sorted);
+    //let P = lineIntersecions(rectangles_sorted);
     let d = 0;
-    while(P.length > 0) {
-        console.log(P.length)
+    let isordered = [];
+    isordered.push(false);
+    let debug = 0;
+    while((P.length > 0 || !isordered[0]) ) {
+        isordered[0]=true;
+        //console.log(P.length)
         shuffleArray(P);
         P.forEach((pair) => {
-            removeOverlap(rectangles[pair.a], rectangles[pair.b]);
+            removeOverlap(rectangles_sorted[pair.a], rectangles_sorted[pair.b]);
         })
         //repairOrder(rectangles, 0,0, rectangles.length-1);
 
-        repairOrder(rectangles, 0, 0, rectangles.length - 1);
-       // repairOrder(rectangles, d%2, 0, rectangles.length - 1);
 
 
+
+        //repairOrder(rectangles, 0,0, rectangles.length-1);
+        //rectangles_sorted = mergeSortX(rectangles_sorted.slice());
+        if(d%2 === 0) {
+            rectangles_sorted = mergeSortY(rectangles_sorted.slice());
+            mergeSortAllY(rectangles_sorted)
+        }
+        else {
+            rectangles_sorted = mergeSortX(rectangles_sorted.slice());
+            mergeSortAllX(rectangles_sorted)
+        }
+
+
+        P = bruteForceIntersections(rectangles_sorted);
         d++;
-
-        P = bruteForceIntersections(rectangles);
-        //P = lineIntersecions(rectangles);
-
+        debug++;
     }
 
+    console.log(rectangles_sorted)
     const endTime = new Date().getTime();
 
     console.log("done with rearrange")
