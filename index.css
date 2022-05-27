@@ -8,3 +8,9 @@ html,body {
     height: 100%;
     margin: 0;
 }
+
+.buttons {
+    margin: 5pt;
+    pointer-events: auto;
+    z-index: 100;
+}

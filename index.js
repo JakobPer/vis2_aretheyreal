@@ -42,6 +42,9 @@ const iconPaths = {
 
 var icons = {}
 var redIcon = {}
+var map = {}
+var rects = {}
+var detailsLayer = {}
 
 function createIcons() {
     for(const p in iconPaths) {
@@ -67,7 +70,7 @@ function createMap() {
 
     createIcons();
 
-    let map = L.map('map', {preferCanvas: true}).setView([38.930771, -101.303710], 5);
+    map = L.map('map', {preferCanvas: true}).setView([38.930771, -101.303710], 5);
 
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -78,7 +81,7 @@ function createMap() {
         accessToken: 'pk.eyJ1IjoiamFrb2JwZXIiLCJhIjoiY2wxN3ZjYmZqMTgzcTNvcXp6YTd0dXYwZyJ9.IG2pM_8jQVxb6ohKX9lDzQ'
     }).addTo(map);
 
-    return map
+    detailsLayer = L.layerGroup().addTo(map);
 }
 
 function getCoords(entry) {
@@ -95,16 +98,48 @@ async function addPoint(entry, map) {
     return marker;
 }
 
+async function showDetails() {
+    console.log("details")
+
+    const bounds = map.getBounds();
+    const rectsToShow = rects.filter((r) => {
+        bounds.contains(r.latLong())
+    })
+
+    rectsToShow.forEach((r)=> r.reset());
+
+    await createDetails(rectsToShow);
+}
+
+async function createDetails(rectsToShow) {
+
+    await rearrange(rectsToShow);
+
+    detailsLayer.clearLayers();
+
+    rectsToShow.forEach((rect) => {
+        const start = map.unproject(rect.original_point());
+        const end = map.unproject(rect.point());
+        const p1 = map.unproject([rect.x - rect.w/2, rect.y - rect.h/2])
+        const p2 = map.unproject([rect.x + rect.w/2, rect.y + rect.h/2])
+        L.polyline([start, end], {color: 'green'}).addTo(detailsLayer);
+        L.rectangle([p1, p2]).addTo(detailsLayer);
+        rect.marker.setLatLng(end);
+    })
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
 
-    let map = createMap()
+    document.querySelector('#details-button').addEventListener('click', showDetails);
+
+    createMap()
 
     let data = await fetch('./data/data.csv')
     let dataText = await data.text()
     let csvData = CSV.parse(dataText, csvDialect)
     let headings = csvData[0]
     // parse csv data and filter invalid entries
-    csvData = csvData.slice(0,3000); // for testing
+    csvData = csvData.slice(0,300); // for testing
     let parsed = csvData.map((x,index) => {
         try {
             let data = x
@@ -124,11 +159,29 @@ document.addEventListener("DOMContentLoaded", async function () {
         return !(isNaN(x.city_latitude) || isNaN(x.city_longitude))
     })
 
+    let projectedCoords = parsed.map(x => {
+        return map.project([x.city_latitude, x.city_longitude])
+    })
+
+    rects = projectedCoords.map((x,i) => {
+        if (x != null) {
+            //return new rectangle(x.x, x.y, Math.random()*5, Math.random()*5);
+            return new rectangle(x.x, x.y, 1,1, parsed[i].city_latitude, parsed[i].city_longitude);
+        }
+        return null;
+    });
+
     let cluster = L.markerClusterGroup()
 
     let markers = await Promise.all(parsed.map((x, i) => {
         return addPoint(parsed[i], cluster)
     }))
+
+    markers.forEach((m, i) => {
+        if(rects[i]!==null) {
+            rects[i].marker = markers[i];
+        }
+    })
 
     map.addLayer(cluster);
     console.log(cluster)
@@ -139,17 +192,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.log(disctinctShapes)
     */
 
-    let projectedCoords = parsed.map(x => {
-        return map.project([x.city_latitude, x.city_longitude])
-    })
-
-    let rects = projectedCoords.map(x => {
-        if (x != null) {
-            //return new rectangle(x.x, x.y, Math.random()*5, Math.random()*5);
-            return new rectangle(x.x, x.y, 1,1);
-        }
-        return null;
-    });
 
     const intersections = bruteForceIntersections(rects)
 
@@ -168,21 +210,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     */
     // ENDTEST
 
-    console.log(markers[0]);
-    intersections.forEach((i) => {
-        markers[i.a].options.icon = redIcon;
-        markers[i.b].options.icon = redIcon;
-    });
-
     await rearrange(rects)
 
-    rects.forEach((rect) => {
-        const start = map.unproject(rect.original_point());
-        const end = map.unproject(rect.point());
-        const p1 = map.unproject([rect.x - rect.w/2, rect.y - rect.h/2])
-        const p2 = map.unproject([rect.x + rect.w/2, rect.y + rect.h/2])
-        L.polyline([start, end], {color: 'green'}).addTo(map);
-        L.rectangle([p1, p2]).addTo(map);
-    })
+    createDetails(rects);
 
 })

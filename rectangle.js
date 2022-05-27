@@ -1,9 +1,11 @@
 export class rectangle {
-    constructor(x,y,w,h) {
+    constructor(x,y,w,h, lat, long) {
         this.x = x
         this.y = y
         this.w = w
         this.h = h
+        this.long = long;
+        this.lat = lat;
         this.x_rank = 0
         this.y_rank = 0
         this._orig_x = x;
@@ -40,6 +42,15 @@ export class rectangle {
 
     original_point() {
         return [this._orig_x, this._orig_y];
+    }
+
+    latLong() {
+        return [this.lat, this.long];
+    }
+
+    reset() {
+        this.x = this._orig_x;
+        this.y = this._orig_y;
     }
 
     intersects(rectangle) {
