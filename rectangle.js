@@ -211,10 +211,10 @@ function shuffleArray(arr) {
 function repairOrder(rectangles,d, left, right) {
     if(left < right){
         //split
-
         let mid = Math.floor((left+right-1)/2);
         repairOrder(rectangles, d, left, mid);
         repairOrder(rectangles, d, mid+1, right);
+
         let rectangles_new = [...rectangles];
         //merge with rearrange
         let i = left;
@@ -247,7 +247,6 @@ function repairOrder(rectangles,d, left, right) {
                         j++;
                         k++;
                     }
-
                     cavg /= count;
                     group.forEach(r => r.x = cavg);
                 }
@@ -271,6 +270,7 @@ function repairOrder(rectangles,d, left, right) {
                         cavg += rectangles[i].y;
                         count++;
                         i++;
+
                     }
                     while (rectangles[j].y_rank === cr) {
                         group.push(rectangles[j]);
@@ -306,19 +306,21 @@ export async function rearrange(rectangles) {
 
     x_rank.forEach((x,i) => rectangles[i].x_rank = x);
     y_rank.forEach((x,i) => rectangles[i].y_rank = x);
-
     let P = bruteForceIntersections(rectangles);
     //let P = lineIntersecions(rectangles);
     let d = 0;
     while(P.length > 0) {
         console.log(P.length)
         shuffleArray(P);
-        
         P.forEach((pair) => {
             removeOverlap(rectangles[pair.a], rectangles[pair.b]);
         })
         //repairOrder(rectangles, 0,0, rectangles.length-1);
-        repairOrder(rectangles, 1,0, rectangles.length-1);
+
+        repairOrder(rectangles, 0, 0, rectangles.length - 1);
+       // repairOrder(rectangles, d%2, 0, rectangles.length - 1);
+
+
         d++;
 
         P = bruteForceIntersections(rectangles);
