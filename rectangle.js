@@ -181,7 +181,13 @@ function removeOverlap(r1, r2, t0 = 0.1) {
     let yOverlap = r1.yOverlap(r2);
     yOverlap = yOverlap < t0 && yOverlap > 0 ? t0 : yOverlap;
 
-    if(xOverlap < yOverlap && xOverlap > 0 && xOverlap < Infinity) {
+    if(xOverlap === Infinity && yOverlap === Infinity) {
+        xOverlap = t0;
+        yOverlap = t0;
+    }
+
+    if((xOverlap > 0 && xOverlap < Infinity) && 
+        ((xOverlap < yOverlap && yOverlap > 0) || yOverlap <= 0)) {
         if(r1.x_rank < r2.x_rank) {
             r1.x -= xOverlap / 2;
             r2.x += xOverlap / 2;
