@@ -48,6 +48,7 @@ var detailsLayer = {}
 var debugLayer = {}
 var linesLayer = {}
 var layerControl = {}
+var parsedData = []
 
 function createIcons() {
     for(const p in iconPaths) {
@@ -152,6 +153,7 @@ async function createDetails(rectsToShow) {
         const end = map.unproject(rect.point());
         const p1 = map.unproject(rect.min())
         const p2 = map.unproject(rect.max())
+        const d = parsedData[rect.dataIndex];
         L.polyline([start, end], {color: 'green'}).addTo(linesLayer);
         L.rectangle([p1, p2]).addTo(debugLayer);
         L.popup({
@@ -159,14 +161,14 @@ async function createDetails(rectsToShow) {
            maxWidth: rect.w - 25,
            //minHeight: rect.h, <=== does not exist
            maxHeight: rect.h - 25,
-           offset: L.point(0,0),
+           offset: L.point(0,rect.h/2 + 20), // 20 is the offset of the bottom tip
            autoPan: false,
            closeButton: false,
            autoClose: false,
            closeOnEscape: false,
            closeOnClick: false
         }).setLatLng(L.latLng(end))
-        .setContent("<b>test</b>").addTo(detailsLayer);
+        .setContent("<p>"+d.text+"</p>").addTo(detailsLayer);
     })
 }
 
@@ -182,7 +184,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     let headings = csvData[0]
     // parse csv data and filter invalid entries
     // csvData = csvData.slice(0,300); // for testing
-    let parsed = csvData.map((x,index) => {
+    parsedData = csvData.map((x,index) => {
         try {
             let data = x
             let entry = {}
@@ -201,22 +203,24 @@ document.addEventListener("DOMContentLoaded", async function () {
         return !(isNaN(x.city_latitude) || isNaN(x.city_longitude))
     })
 
-    let projectedCoords = parsed.map(x => {
+    let projectedCoords = parsedData.map(x => {
         return map.project([x.city_latitude, x.city_longitude], map.getZoom())
     })
 
     rects = projectedCoords.map((x,i) => {
         if (x != null) {
             //return new rectangle(x.x, x.y, Math.random()*5, Math.random()*5);
-            return new rectangle(x.x, x.y, 200, 200, parsed[i].city_latitude, parsed[i].city_longitude);
+            let r = new rectangle(x.x, x.y, 200, 200, parsedData[i].city_latitude, parsedData[i].city_longitude);
+            r.dataIndex = i;
+            return r;
         }
         return null;
     });
 
     let cluster = L.markerClusterGroup()
 
-    let markers = await Promise.all(parsed.map((x, i) => {
-        return addPoint(parsed[i], cluster)
+    let markers = await Promise.all(parsedData.map((x, i) => {
+        return addPoint(parsedData[i], cluster)
     }))
 
     markers.forEach((m, i) => {

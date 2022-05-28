@@ -10,6 +10,7 @@ export class rectangle {
         this.y_rank = 0
         this._orig_x = x;
         this._orig_y = y;
+        this.dataIndex = -1;
     }
 
     min() {
