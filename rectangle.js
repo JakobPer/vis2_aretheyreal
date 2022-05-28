@@ -465,7 +465,6 @@ export async function rearrange(rectangles) {
 
         //repairOrder(rectangles, 0,0, rectangles.length-1);
         //rectangles_sorted = mergeSortX(rectangles_sorted.slice());
-        /*
         if(d%2 === 0) {
             rectangles_sorted = mergeSortY(rectangles_sorted.slice());
             mergeSortAllY(rectangles_sorted)
@@ -474,7 +473,6 @@ export async function rearrange(rectangles) {
             rectangles_sorted = mergeSortX(rectangles_sorted.slice());
             mergeSortAllX(rectangles_sorted)
         }
-        */
         P = bruteForceIntersections(rectangles_sorted);
         d++;
     }
