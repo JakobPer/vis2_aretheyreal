@@ -48,9 +48,11 @@ export class rectangle {
         return [this.lat, this.long];
     }
 
-    reset() {
-        this.x = this._orig_x;
-        this.y = this._orig_y;
+    reset(coords) {
+        this.x = coords.x;
+        this.y = coords.y;
+        this._orig_x = this.x;
+        this._orig_y = this.y;
     }
 
     intersects(rectangle) {
@@ -441,19 +443,19 @@ function mergeSortY(array) {
 export async function rearrange(rectangles) {
     const startTime = new Date().getTime();
     let rectangles_sorted = mergeSortX(rectangles.slice());
-    console.log(rectangles_sorted);
+    //console.log(rectangles_sorted);
     // after sorting, rank is just the index
     rectangles_sorted.forEach((r,i) => r.x_rank = i)
 
     rectangles_sorted = mergeSortY(rectangles.slice());
     rectangles_sorted.forEach((r,i) => r.y_rank = i)
 
-    console.log(rectangles_sorted);
+    //console.log(rectangles_sorted);
     let P = bruteForceIntersections(rectangles_sorted);
     //let P = lineIntersecions(rectangles_sorted);
     let d = 0;
     while(P.length > 0) {
-        //console.log(P.length)
+        console.log(P.length)
         shuffleArray(P);
         P.forEach((pair) => {
             removeOverlap(rectangles_sorted[pair.a], rectangles_sorted[pair.b]);
@@ -462,6 +464,7 @@ export async function rearrange(rectangles) {
 
         //repairOrder(rectangles, 0,0, rectangles.length-1);
         //rectangles_sorted = mergeSortX(rectangles_sorted.slice());
+        /*
         if(d%2 === 0) {
             rectangles_sorted = mergeSortY(rectangles_sorted.slice());
             mergeSortAllY(rectangles_sorted)
@@ -470,11 +473,12 @@ export async function rearrange(rectangles) {
             rectangles_sorted = mergeSortX(rectangles_sorted.slice());
             mergeSortAllX(rectangles_sorted)
         }
+        */
         P = bruteForceIntersections(rectangles_sorted);
         d++;
     }
 
-    console.log(rectangles_sorted)
+    //console.log(rectangles_sorted)
     const endTime = new Date().getTime();
 
     console.log("done with rearrange")

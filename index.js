@@ -45,6 +45,8 @@ var redIcon = {}
 var map = {}
 var rects = {}
 var detailsLayer = {}
+var linesLayer = {}
+var layerControl = {}
 
 function createIcons() {
     for(const p in iconPaths) {
@@ -70,9 +72,13 @@ function createMap() {
 
     createIcons();
 
-    map = L.map('map', {preferCanvas: true}).setView([38.930771, -101.303710], 5);
+    map = L.map('map', {
+        preferCanvas: true,
+        center: [38.930771, -101.303710],
+        zoom: 7
+    });
 
-    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    let streets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
         maxZoom: 18,
         id: 'mapbox/streets-v11',
@@ -82,6 +88,22 @@ function createMap() {
     }).addTo(map);
 
     detailsLayer = L.layerGroup().addTo(map);
+    linesLayer = L.layerGroup();
+
+    let baseLayers = {
+        "Streets": streets 
+    }
+
+    let overlayLayers = {
+        "Details": detailsLayer,
+        "Offset Lines" : linesLayer
+    }
+
+    layerControl = L.control.layers(baseLayers, overlayLayers, {
+        collapsed: false, 
+        hideSingleBase: true
+    }).addTo(map);
+
 }
 
 function getCoords(entry) {
@@ -102,11 +124,14 @@ async function showDetails() {
     console.log("details")
 
     const bounds = map.getBounds();
-    const rectsToShow = rects.filter((r) => {
-        bounds.contains(r.latLong())
-    })
+    const rectsToShow = rects.filter(r => bounds.contains(L.latLng(r.lat, r.long)))
 
-    rectsToShow.forEach((r)=> r.reset());
+    rectsToShow.forEach((r)=> {
+        const z = map.getZoom();
+        const proj = map.project(r.latLong(), z);
+        console.log(proj);
+        r.reset(proj);
+    });
 
     await createDetails(rectsToShow);
 }
@@ -120,11 +145,10 @@ async function createDetails(rectsToShow) {
     rectsToShow.forEach((rect) => {
         const start = map.unproject(rect.original_point());
         const end = map.unproject(rect.point());
-        const p1 = map.unproject([rect.x - rect.w/2, rect.y - rect.h/2])
-        const p2 = map.unproject([rect.x + rect.w/2, rect.y + rect.h/2])
-        L.polyline([start, end], {color: 'green'}).addTo(detailsLayer);
+        const p1 = map.unproject(rect.min())
+        const p2 = map.unproject(rect.max())
+        L.polyline([start, end], {color: 'green'}).addTo(linesLayer);
         L.rectangle([p1, p2]).addTo(detailsLayer);
-        rect.marker.setLatLng(end);
     })
 }
 
@@ -160,13 +184,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     })
 
     let projectedCoords = parsed.map(x => {
-        return map.project([x.city_latitude, x.city_longitude])
+        return map.project([x.city_latitude, x.city_longitude], map.getZoom())
     })
 
     rects = projectedCoords.map((x,i) => {
         if (x != null) {
             //return new rectangle(x.x, x.y, Math.random()*5, Math.random()*5);
-            return new rectangle(x.x, x.y, 1,1, parsed[i].city_latitude, parsed[i].city_longitude);
+            return new rectangle(x.x, x.y, 100,100, parsed[i].city_latitude, parsed[i].city_longitude);
         }
         return null;
     });
@@ -193,7 +217,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     */
 
 
-    const intersections = bruteForceIntersections(rects)
+    //const intersections = bruteForceIntersections(rects)
 
     // TEST INTERSECTIONS
     /*
@@ -210,8 +234,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     */
     // ENDTEST
 
+    /*
     await rearrange(rects)
+    */
 
-    createDetails(rects);
+    //createDetails(rects);
+
+    //showDetails();
 
 })
