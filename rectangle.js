@@ -442,16 +442,11 @@ export async function rearrange(rectangles) {
     const startTime = new Date().getTime();
     let rectangles_sorted = mergeSortX(rectangles.slice());
     console.log(rectangles_sorted);
-    let x_rank = Array.from(Array(rectangles_sorted.length).keys())
-        .sort((a, b) => rectangles_sorted[a].x < rectangles_sorted[b].x ? -1 : (rectangles_sorted[b].x < rectangles_sorted[a].x) | 0);
-
-
-    x_rank.forEach((x,i) => rectangles_sorted[i].x_rank = x);
+    // after sorting, rank is just the index
+    rectangles_sorted.forEach((r,i) => r.x_rank = i)
 
     rectangles_sorted = mergeSortY(rectangles.slice());
-    let y_rank = Array.from(Array(rectangles_sorted.length).keys())
-        .sort((a, b) => rectangles_sorted[a].y < rectangles_sorted[b].y ? -1 : (rectangles_sorted[b].y < rectangles_sorted[a].y) | 0);
-    y_rank.forEach((x,i) => rectangles_sorted[i].y_rank = x);
+    rectangles_sorted.forEach((r,i) => r.y_rank = i)
 
     console.log(rectangles_sorted);
     let P = bruteForceIntersections(rectangles_sorted);
