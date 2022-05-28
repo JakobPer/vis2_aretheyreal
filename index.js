@@ -45,6 +45,7 @@ var redIcon = {}
 var map = {}
 var rects = {}
 var detailsLayer = {}
+var debugLayer = {}
 var linesLayer = {}
 var layerControl = {}
 
@@ -75,7 +76,7 @@ function createMap() {
     map = L.map('map', {
         preferCanvas: true,
         center: [38.930771, -101.303710],
-        zoom: 7
+        zoom: 6
     });
 
     let streets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -88,6 +89,7 @@ function createMap() {
     }).addTo(map);
 
     detailsLayer = L.layerGroup().addTo(map);
+    debugLayer = L.layerGroup().addTo(map);
     linesLayer = L.layerGroup();
 
     let baseLayers = {
@@ -96,7 +98,8 @@ function createMap() {
 
     let overlayLayers = {
         "Details": detailsLayer,
-        "Offset Lines" : linesLayer
+        "Offset Lines" : linesLayer,
+        "Debug" : debugLayer
     }
 
     layerControl = L.control.layers(baseLayers, overlayLayers, {
@@ -141,6 +144,8 @@ async function createDetails(rectsToShow) {
     await rearrange(rectsToShow);
 
     detailsLayer.clearLayers();
+    linesLayer.clearLayers();
+    debugLayer.clearLayers();
 
     rectsToShow.forEach((rect) => {
         const start = map.unproject(rect.original_point());
@@ -148,7 +153,20 @@ async function createDetails(rectsToShow) {
         const p1 = map.unproject(rect.min())
         const p2 = map.unproject(rect.max())
         L.polyline([start, end], {color: 'green'}).addTo(linesLayer);
-        L.rectangle([p1, p2]).addTo(detailsLayer);
+        L.rectangle([p1, p2]).addTo(debugLayer);
+        L.popup({
+           minWidth: rect.w - 25, // 20 is CSS padding, compensate a bit more
+           maxWidth: rect.w - 25,
+           //minHeight: rect.h, <=== does not exist
+           maxHeight: rect.h - 25,
+           offset: L.point(0,0),
+           autoPan: false,
+           closeButton: false,
+           autoClose: false,
+           closeOnEscape: false,
+           closeOnClick: false
+        }).setLatLng(L.latLng(end))
+        .setContent("<b>test</b>").addTo(detailsLayer);
     })
 }
 
@@ -163,7 +181,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     let csvData = CSV.parse(dataText, csvDialect)
     let headings = csvData[0]
     // parse csv data and filter invalid entries
-    csvData = csvData.slice(0,300); // for testing
+    // csvData = csvData.slice(0,300); // for testing
     let parsed = csvData.map((x,index) => {
         try {
             let data = x
@@ -190,7 +208,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     rects = projectedCoords.map((x,i) => {
         if (x != null) {
             //return new rectangle(x.x, x.y, Math.random()*5, Math.random()*5);
-            return new rectangle(x.x, x.y, 100,100, parsed[i].city_latitude, parsed[i].city_longitude);
+            return new rectangle(x.x, x.y, 200, 200, parsed[i].city_latitude, parsed[i].city_longitude);
         }
         return null;
     });
@@ -241,5 +259,4 @@ document.addEventListener("DOMContentLoaded", async function () {
     //createDetails(rects);
 
     //showDetails();
-
 })

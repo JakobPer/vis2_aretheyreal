@@ -14,3 +14,13 @@ html,body {
     pointer-events: auto;
     z-index: 100;
 }
+
+.leaflet-popup-content {
+    margin: 10px 10px 10px 10px;
+}
+
+.leaflet-popup-tip {
+    visibility: collapse;
+    width: 0px;
+    height: 0px;
+}
