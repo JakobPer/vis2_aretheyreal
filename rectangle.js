@@ -446,20 +446,13 @@ export async function rearrange(rectangles) {
     let P = bruteForceIntersections(rectangles_sorted);
     //let P = lineIntersecions(rectangles_sorted);
     let d = 0;
-    let isordered = [];
-    isordered.push(false);
-    let debug = 0;
-    while((P.length > 0 || !isordered[0]) ) {
-        isordered[0]=true;
+    while(P.length > 0) {
         //console.log(P.length)
         shuffleArray(P);
         P.forEach((pair) => {
             removeOverlap(rectangles_sorted[pair.a], rectangles_sorted[pair.b]);
         })
         //repairOrder(rectangles, 0,0, rectangles.length-1);
-
-
-
 
         //repairOrder(rectangles, 0,0, rectangles.length-1);
         //rectangles_sorted = mergeSortX(rectangles_sorted.slice());
@@ -471,11 +464,8 @@ export async function rearrange(rectangles) {
             rectangles_sorted = mergeSortX(rectangles_sorted.slice());
             mergeSortAllX(rectangles_sorted)
         }
-
-
         P = bruteForceIntersections(rectangles_sorted);
         d++;
-        debug++;
     }
 
     console.log(rectangles_sorted)
