@@ -201,13 +201,16 @@ L.UFOPopup = L.DivOverlay.extend({
 		this._containerWidth = this._container.offsetWidth;
 	},
 
+    /*
 	_animateZoom: function (e) {
 		var pos = this._map._latLngToNewLayerPoint(this._latlng, e.zoom, e.center),
 		    anchor = this._getAnchor();
 		L.DomUtil.setPosition(this._container, pos.add(anchor));
 	},
+    */
 
 	_adjustPan: function (e) {
+        return;
 		if (!this.options.autoPan) { return; }
 		if (this._map._panAnim) { this._map._panAnim.stop(); }
 
