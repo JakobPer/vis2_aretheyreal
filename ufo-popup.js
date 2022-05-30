@@ -11,7 +11,7 @@ L.UFOPopup = L.DivOverlay.extend({
 
 		// @option offset: Point = Point(0, 7)
 		// The offset of the popup position.
-		offset: [0, 7],
+		offset: [0, 0],
 
 		// @option maxWidth: Number = 300
 		// Max width of the popup, in pixels.
@@ -185,25 +185,18 @@ L.UFOPopup = L.DivOverlay.extend({
 		style.width = '';
 		style.whiteSpace = 'nowrap';
 
-		var width = container.offsetWidth;
-		width = Math.min(width, this.options.maxWidth);
-		width = Math.max(width, this.options.minWidth);
+		var width = this.options.maxWidth;
 
-		style.width = (width + 1) + 'px';
+		style.width = (width) + 'px';
 		style.whiteSpace = '';
 
 		style.height = '';
 
-		var height = container.offsetHeight,
-		    maxHeight = this.options.maxHeight,
+		var maxHeight = this.options.maxHeight,
 		    scrolledClass = 'leaflet-popup-scrolled';
 
-		if (maxHeight && height > maxHeight) {
-			style.height = maxHeight + 'px';
-			L.DomUtil.addClass(container, scrolledClass);
-		} else {
-			L.DomUtil.removeClass(container, scrolledClass);
-		}
+        style.height = maxHeight + 'px';
+        //L.DomUtil.addClass(container, scrolledClass);
 
 		this._containerWidth = this._container.offsetWidth;
 	},

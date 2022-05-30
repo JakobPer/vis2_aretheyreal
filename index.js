@@ -154,21 +154,34 @@ async function createDetails(rectsToShow) {
         const p1 = map.unproject(rect.min())
         const p2 = map.unproject(rect.max())
         const d = parsedData[rect.dataIndex];
+
+        const imgUrl = iconPaths[d.shape] ?? "shapes/default.svg";
+
+        const popupContent = 
+        `<div class='ufo-popup'>
+            <img class='ufo-image' src='`+imgUrl+`'></img>
+            <b>Shape: </b>`+(d.shape === null ? 'unknown' : d.shape)+ `<br> 
+            <b>State: </b>`+d.state+`<br> 
+            <b>City: </b>`+d.city+`<br>
+            <b>Duration: </b>`+d.duration+`<br>
+            <b>On: </b>`+d.date_time+`<br>
+        </div>`;
+
         L.polyline([start, end], {color: 'green'}).addTo(linesLayer);
         L.rectangle([p1, p2]).addTo(debugLayer);
         L.ufopopup({
-           minWidth: rect.w - 25, // 20 is CSS padding, compensate a bit more
-           maxWidth: rect.w - 25,
+           minWidth: rect.w - 30, // 20 is CSS padding, compensate a bit more
+           maxWidth: rect.w - 30,
            //minHeight: rect.h, <=== does not exist
-           maxHeight: rect.h - 25,
-           offset: L.point(0,rect.h/2 + 20), // 20 is the offset of the bottom tip
+           maxHeight: rect.h - 30,
+           offset: L.point(0,rect.h/2 + 15), // 20 is the offset of the bottom tip
            autoPan: false,
            closeButton: false,
            autoClose: false,
            closeOnEscape: false,
            closeOnClick: false
         }).setLatLng(L.latLng(end))
-        .setContent("<p>"+d.text+"</p>").addTo(detailsLayer);
+        .setContent(popupContent).addTo(detailsLayer);
     })
 }
 
@@ -210,7 +223,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     rects = projectedCoords.map((x,i) => {
         if (x != null) {
             //return new rectangle(x.x, x.y, Math.random()*5, Math.random()*5);
-            let r = new rectangle(x.x, x.y, 200, 200, parsedData[i].city_latitude, parsedData[i].city_longitude);
+            let r = new rectangle(x.x, x.y, 270, 120, parsedData[i].city_latitude, parsedData[i].city_longitude);
             r.dataIndex = i;
             return r;
         }

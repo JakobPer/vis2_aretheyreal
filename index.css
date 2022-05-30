@@ -24,3 +24,14 @@ html,body {
     width: 0px;
     height: 0px;
 }
+
+.ufo-image {
+    width: 64px;
+    height: 64px;
+    position:absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    right: 10px;
+    display: block;
+}
