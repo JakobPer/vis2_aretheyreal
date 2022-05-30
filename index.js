@@ -156,7 +156,7 @@ async function createDetails(rectsToShow) {
         const d = parsedData[rect.dataIndex];
         L.polyline([start, end], {color: 'green'}).addTo(linesLayer);
         L.rectangle([p1, p2]).addTo(debugLayer);
-        L.popup({
+        L.ufopopup({
            minWidth: rect.w - 25, // 20 is CSS padding, compensate a bit more
            maxWidth: rect.w - 25,
            //minHeight: rect.h, <=== does not exist
