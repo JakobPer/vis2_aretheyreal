@@ -149,10 +149,12 @@ L.UFOPopup = L.DivOverlay.extend({
 	},
 
 	_initLayout: function () {
+		this._startZoom = this._map.getZoom();
+
 		var prefix = 'leaflet-popup',
 		    container = this._container = L.DomUtil.create('div',
 			prefix + ' ' + (this.options.className || '') +
-			' leaflet-zoom-animated');
+			' leaflet-zoom-animated ufo-popup-container');
 
 		var wrapper = this._wrapper = L.DomUtil.create('div', prefix + '-content-wrapper', container);
 		this._contentNode = L.DomUtil.create('div', prefix + '-content', wrapper);
@@ -201,13 +203,41 @@ L.UFOPopup = L.DivOverlay.extend({
 		this._containerWidth = this._container.offsetWidth;
 	},
 
-    /*
+	_getZoomScale(newZoomLevel) {
+		return this._map.getZoomScale(newZoomLevel ?? this._map.getZoom(),this._startZoom);
+	},
+
 	_animateZoom: function (e) {
 		var pos = this._map._latLngToNewLayerPoint(this._latlng, e.zoom, e.center),
 		    anchor = this._getAnchor();
-		L.DomUtil.setPosition(this._container, pos.add(anchor));
+		let zoomScale = this._getZoomScale(e.zoom);
+		//L.DomUtil.setPosition(this._container, pos.add(anchor));
+		L.DomUtil.setTransform(this._container, pos.add(anchor), zoomScale);
+		//L.DomUtil.setTransform(this._wrapper, null, zoomScale);
 	},
-    */
+
+	_updatePosition: function(e) {
+  		if (!this._map) { return; }
+
+  		var pos = this._map.latLngToLayerPoint(this._latlng),
+  		    offset = L.point(this.options.offset),
+  		    anchor = this._getAnchor();
+
+  		if (this._zoomAnimated) {
+			let zoomScale = this._getZoomScale();
+  			L.DomUtil.setTransform(this._container, pos.add(anchor), zoomScale);
+  			//L.DomUtil.setTransform(this._wrapper, null, zoomScale);
+  		} else {
+  			offset = offset.add(pos).divideBy(zoomScale).add(anchor);
+  		}
+
+  		var bottom = this._containerBottom = -offset.y,
+  		    left = this._containerLeft = -Math.round(this._containerWidth / 2) + offset.x;
+
+  		// bottom position the overlay in case the height of the overlay changes (images loading etc)
+  		this._container.style.bottom = bottom + 'px';
+  		this._container.style.left = left + 'px';
+	},
 
 	_adjustPan: function (e) {
         return;

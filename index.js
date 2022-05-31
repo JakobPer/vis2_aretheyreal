@@ -169,7 +169,7 @@ async function createDetails(rectsToShow) {
 
         L.polyline([start, end], {color: 'green'}).addTo(linesLayer);
         L.rectangle([p1, p2]).addTo(debugLayer);
-        L.ufopopup({
+        let popup = L.ufopopup({
            minWidth: rect.w - 30, // 20 is CSS padding, compensate a bit more
            maxWidth: rect.w - 30,
            //minHeight: rect.h, <=== does not exist
@@ -179,7 +179,7 @@ async function createDetails(rectsToShow) {
            closeButton: false,
            autoClose: false,
            closeOnEscape: false,
-           closeOnClick: false
+           closeOnClick: false,
         }).setLatLng(L.latLng(end))
         .setContent(popupContent).addTo(detailsLayer);
     })
@@ -239,6 +239,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     markers.forEach((m, i) => {
         if(rects[i]!==null) {
             rects[i].marker = markers[i];
+            markers[i].rectangle = rects[i];
         }
     })
 

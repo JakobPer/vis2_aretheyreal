@@ -35,3 +35,10 @@ html,body {
     right: 10px;
     display: block;
 }
+
+.ufo-popup-container {
+    -ms-transform-origin: 50% 50%;
+    -moz-transform-origin: 50% 50%;
+    -o-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+}
