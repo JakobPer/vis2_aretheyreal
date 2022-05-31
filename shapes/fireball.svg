@@ -27,7 +27,7 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:zoom="25.25"
-     inkscape:cx="12.792079"
+     inkscape:cx="12.851485"
      inkscape:cy="13.980198"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
@@ -178,23 +178,23 @@
      inkscape:groupmode="layer"
      id="layer1">
     <circle
-       style="fill:none;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+       style="fill:#fb8072;stroke:#fb8072;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill-opacity:0.5"
        id="path993"
        cx="16"
        cy="23.841583"
        r="5.8217821" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:none;stroke:#fb8072;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
        d="M 16,14.613861 C 20.228268,10.385594 12.159102,7.2639979 16,3.0891089"
        id="path1112"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#fb8072;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 21.817,16.910891 c 4.228268,-4.228267 -3.840898,-7.3498633 0,-11.5247523"
        id="path1112-7"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#fb8072;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 10.183,16.910891 c 4.228268,-4.228266 -3.840898,-7.3498628 0,-11.5247518"
        id="path1112-7-4"
        sodipodi:nodetypes="cc" />

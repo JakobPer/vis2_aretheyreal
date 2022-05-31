@@ -7,7 +7,7 @@
    viewBox="0 0 32 32"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    sodipodi:docname="cylinder.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -27,8 +27,8 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:zoom="25.25"
-     inkscape:cx="12.792079"
-     inkscape:cy="16.237624"
+     inkscape:cx="12.851485"
+     inkscape:cy="16.316832"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="-8"
@@ -37,7 +37,9 @@
      inkscape:current-layer="layer1"
      inkscape:snap-object-midpoints="false"
      inkscape:snap-bbox-midpoints="true"
-     inkscape:object-paths="true">
+     inkscape:object-paths="true"
+     inkscape:showpageshadow="0"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
        position="16,16"
        orientation="0,1"
@@ -145,13 +147,8 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       id="path935"
-       style="fill:none;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
-       d="M 24.039604,7.4455447 A 8.0396042,3.4059405 0 0 1 16,10.851485 8.0396042,3.4059405 0 0 1 7.9603958,7.4455447 8.0396042,3.4059405 0 0 1 16,4.0396042 8.0396042,3.4059405 0 0 1 24.039604,7.4455447 Z" />
-    <path
        id="path935-9"
-       style="fill:none;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
-       d="M 24.039604,7.4455447 V 24.673267 c 1e-6,1.881049 -3.599453,3.405941 -8.039604,3.405941 -4.440151,0 -8.0396049,-1.524892 -8.0396042,-3.405941 l 0,-17.2277225"
-       sodipodi:nodetypes="csc" />
+       style="fill:#b3de69;stroke:#b3de69;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill-opacity:0.5"
+       d="M 24.039604,7.4455447 V 24.673267 c 1e-6,1.881049 -3.599453,3.405941 -8.039604,3.405941 -4.440151,0 -8.0396049,-1.524892 -8.0396042,-3.405941 V 7.4455445 m 16.0792082,2e-7 A 8.0396042,3.4059405 0 0 1 16,10.851485 8.0396042,3.4059405 0 0 1 7.9603958,7.4455447 8.0396042,3.4059405 0 0 1 16,4.0396042 8.0396042,3.4059405 0 0 1 24.039604,7.4455447 Z" />
   </g>
 </svg>

@@ -7,7 +7,7 @@
    viewBox="0 0 32 32"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    sodipodi:docname="formation.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -27,8 +27,8 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:zoom="25.25"
-     inkscape:cx="12.792079"
-     inkscape:cy="16.316832"
+     inkscape:cx="12.851485"
+     inkscape:cy="16.39604"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="-8"
@@ -37,7 +37,9 @@
      inkscape:current-layer="layer1"
      inkscape:snap-object-midpoints="false"
      inkscape:snap-bbox-midpoints="true"
-     inkscape:object-paths="true">
+     inkscape:object-paths="true"
+     inkscape:showpageshadow="0"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
        position="16,16"
        orientation="0,1"
@@ -145,19 +147,19 @@
      inkscape:groupmode="layer"
      id="layer1">
     <circle
-       style="fill:none;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+       style="fill:#ccebc5;stroke:#ccebc5;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill-opacity:0.5"
        id="path935"
        cx="7.8811874"
        cy="25.227722"
        r="3.8415842" />
     <circle
-       style="fill:none;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:#ccebc5;stroke:#ccebc5;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:0.5"
        id="path935-7"
        cx="23.544556"
        cy="22.158419"
        r="5.6170402" />
     <circle
-       style="fill:none;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:#ccebc5;stroke:#ccebc5;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:0.5"
        id="path935-2"
        cx="16"
        cy="7.3465352"

@@ -7,7 +7,7 @@
    viewBox="0 0 32 32"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    sodipodi:docname="changing.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -27,8 +27,8 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:zoom="25.25"
-     inkscape:cx="12.792079"
-     inkscape:cy="17.148515"
+     inkscape:cx="12.891089"
+     inkscape:cy="17.267327"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="-8"
@@ -37,7 +37,9 @@
      inkscape:current-layer="layer1"
      inkscape:snap-object-midpoints="false"
      inkscape:snap-bbox-midpoints="true"
-     inkscape:object-paths="true">
+     inkscape:object-paths="true"
+     inkscape:showpageshadow="0"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
        position="16,16"
        orientation="0,1"
@@ -153,7 +155,7 @@
      id="layer1">
     <path
        id="path1045"
-       style="fill:none;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+       style="fill:#8dd3c7;stroke:#8dd3c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill-opacity:0.50259066"
        d="m 25.10891,11.960396 c 5.638347,-0.957274 0.825439,8.188438 -6.772276,14.376237 C 15.740719,28.450822 16.110358,20.94483 5.5841588,18.811881 -1.1136111,17.454696 13.566557,-0.44503705 16,4.39604 c 2.579413,5.1314697 5.132887,8.239402 9.10891,7.564356 z"
        sodipodi:nodetypes="sssss" />
   </g>

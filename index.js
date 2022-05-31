@@ -80,21 +80,20 @@ function createMap() {
         zoom: 6
     });
 
-    let streets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 18,
-        id: 'mapbox/streets-v11',
-        tileSize: 512,
-        zoomOffset: -1,
-        accessToken: 'pk.eyJ1IjoiamFrb2JwZXIiLCJhIjoiY2wxN3ZjYmZqMTgzcTNvcXp6YTd0dXYwZyJ9.IG2pM_8jQVxb6ohKX9lDzQ'
-    }).addTo(map);
+    var toner = new L.StamenTileLayer("toner-lite");
+    map.addLayer(toner);
+    var terrain = new L.StamenTileLayer("terrain");
+    var watercolor = new L.StamenTileLayer("watercolor");
+
 
     detailsLayer = L.layerGroup().addTo(map);
-    debugLayer = L.layerGroup().addTo(map);
-    linesLayer = L.layerGroup();
+    debugLayer = L.layerGroup();
+    linesLayer = L.layerGroup().addTo(map);
 
     let baseLayers = {
-        "Streets": streets 
+        "Toner": toner,
+        "Terrain": terrain,
+        "Watercolor": watercolor,
     }
 
     let overlayLayers = {

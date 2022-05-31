@@ -7,7 +7,7 @@
    viewBox="0 0 32 32"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    sodipodi:docname="delta.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -27,7 +27,7 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:zoom="25.25"
-     inkscape:cx="17.148515"
+     inkscape:cx="17.247525"
      inkscape:cy="16.633663"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
@@ -37,7 +37,9 @@
      inkscape:current-layer="layer1"
      inkscape:snap-object-midpoints="false"
      inkscape:snap-bbox-midpoints="true"
-     inkscape:object-paths="true">
+     inkscape:object-paths="true"
+     inkscape:showpageshadow="0"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
        position="16,16"
        orientation="0,1"
@@ -146,7 +148,7 @@
      id="layer1">
     <path
        id="path1001"
-       style="fill:none;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+       style="fill:#ffffb3;stroke:#ffffb3;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill-opacity:0.5"
        inkscape:transform-center-y="-3.4038769"
        d="M 16,5.5664062 10.103516,15.777344 4.2089844,25.988281 H 11.128906 L 16,18.177734 l 4.871094,7.810547 h 6.919922 L 21.896484,15.777344 Z"
        sodipodi:nodetypes="ccccccccc" />

@@ -7,7 +7,7 @@
    viewBox="0 0 32 32"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    sodipodi:docname="diamond.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -27,7 +27,7 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:zoom="16"
-     inkscape:cx="14.625"
+     inkscape:cx="14.71875"
      inkscape:cy="16.375"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
@@ -37,7 +37,9 @@
      inkscape:current-layer="layer1"
      inkscape:snap-object-midpoints="false"
      inkscape:snap-bbox-midpoints="true"
-     inkscape:object-paths="true">
+     inkscape:object-paths="true"
+     inkscape:showpageshadow="0"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
        position="16,16"
        orientation="0,1"
@@ -146,7 +148,7 @@
      id="layer1">
     <path
        id="path946-9"
-       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#fccde5;stroke:#fccde5;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:0.5"
        d="M 2.84375,12.062525 8,5.0937754 h 8 8 L 29.15625,12.062525 16,26.906275 Z"
        sodipodi:nodetypes="ccccccc" />
   </g>

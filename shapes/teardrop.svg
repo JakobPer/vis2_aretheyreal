@@ -7,7 +7,7 @@
    viewBox="0 0 32 32"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    sodipodi:docname="teardrop.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -27,7 +27,7 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:zoom="22.176087"
-     inkscape:cx="14.610332"
+     inkscape:cx="14.677973"
      inkscape:cy="14.745613"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
@@ -39,7 +39,9 @@
      inkscape:snap-bbox-midpoints="true"
      inkscape:object-paths="true"
      inkscape:snap-intersection-paths="true"
-     inkscape:snap-smooth-nodes="true">
+     inkscape:snap-smooth-nodes="true"
+     inkscape:showpageshadow="0"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
        position="16,16"
        orientation="0,1"
@@ -148,7 +150,7 @@
      id="layer1">
     <path
        id="path935"
-       style="fill:none;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:#8dd3c7;stroke:#8dd3c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:0.5"
        d="m 23.764087,20.875225 c 0,4.287987 -3.4761,7.764088 -7.764087,7.764088 -4.287987,10e-7 -7.7640872,-3.476101 -7.7640872,-7.764088 C 8.2359125,16.587239 16,3.3606052 16,3.3606052 c 0,0 7.764087,13.2266338 7.764087,17.5146198 z"
        sodipodi:nodetypes="ssscs" />
   </g>

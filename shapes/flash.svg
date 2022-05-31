@@ -7,7 +7,7 @@
    viewBox="0 0 32 32"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    sodipodi:docname="flash.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -27,8 +27,8 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:zoom="25.25"
-     inkscape:cx="12.792079"
-     inkscape:cy="17.148515"
+     inkscape:cx="12.851485"
+     inkscape:cy="17.227723"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="-8"
@@ -37,7 +37,9 @@
      inkscape:current-layer="layer1"
      inkscape:snap-object-midpoints="false"
      inkscape:snap-bbox-midpoints="true"
-     inkscape:object-paths="true">
+     inkscape:object-paths="true"
+     inkscape:showpageshadow="0"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
        position="16,16"
        orientation="0,1"
@@ -152,7 +154,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffed6f;stroke:#ffed6f;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:0.5"
        d="M 10.772277,14.178218 6.4950495,6.2178218 13.90099,12 17.70297,2.0990099 18.613861,13.50495 27.643564,6.2574257 19.168317,18.059406 c 0,0 8.752475,9.267327 8.514851,9.227723 -0.237623,-0.0396 -10.415841,-6.257426 -10.415841,-6.257426 0,0 1.108911,7.60396 0.871287,7.168317 -0.237624,-0.435644 -4.118812,-7.920792 -4.118812,-7.920792 0,0 -7.7623763,8.871287 -7.8811881,8.316831 C 6.019802,28.039604 11.643564,17.940594 11.643564,17.940594 L 2.3366337,17.346535 Z"
        id="path1056"
        sodipodi:nodetypes="cccccccscscsccc" />

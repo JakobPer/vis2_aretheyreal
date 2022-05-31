@@ -7,7 +7,7 @@
    viewBox="0 0 32 32"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    sodipodi:docname="egg.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -27,7 +27,7 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:zoom="22.176087"
-     inkscape:cx="14.610332"
+     inkscape:cx="14.677973"
      inkscape:cy="14.745613"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
@@ -39,7 +39,9 @@
      inkscape:snap-bbox-midpoints="true"
      inkscape:object-paths="true"
      inkscape:snap-intersection-paths="true"
-     inkscape:snap-smooth-nodes="true">
+     inkscape:snap-smooth-nodes="true"
+     inkscape:showpageshadow="0"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
        position="16,16"
        orientation="0,1"
@@ -148,7 +150,7 @@
      id="layer1">
     <path
        id="path935"
-       style="fill:none;stroke:#1a1a1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:#d9d9d9;stroke:#d9d9d9;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:0.5"
        d="m 25.228751,18.412944 c 0,5.096898 -4.131853,9.228751 -9.228751,9.228751 -5.096898,1e-6 -9.2287511,-4.131853 -9.2287511,-9.228751 C 6.7712486,13.316046 10.903102,4.3583043 16,4.3583045 c 5.096898,0 9.228751,8.9577415 9.228751,14.0546395 z"
        sodipodi:nodetypes="sssss" />
   </g>
