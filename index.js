@@ -141,7 +141,12 @@ async function showDetails() {
 
 async function createDetails(rectsToShow) {
 
-    await rearrange(rectsToShow);
+    const success = await rearrange(rectsToShow);
+    if(!success) {
+        console.log("rearrange ran into timeout");
+        alert("Rearrange ran into timeout");
+        return;
+    }
 
     detailsLayer.clearLayers();
     linesLayer.clearLayers();

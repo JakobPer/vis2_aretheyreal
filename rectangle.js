@@ -95,6 +95,16 @@ export class rectangle {
     }
 }
 
+class seachPoint {
+    constructor(index, isInterval, isBottom,y, data) {
+        this.index = index;
+        this.isInterval = isInterval;
+        this.isBottom = isBottom;
+        this.data = data;
+        this.y = y;
+    }
+}
+
 // https://stackoverflow.com/a/21822316
 function sortedYIndex(array, value) {
     var low = 0,
@@ -140,8 +150,12 @@ export function lineIntersecions(rectangles) {
         // now all the "horizontal lines" that are in the vertical space of the current rect are intersecting
         let its = R.filter(e => e.y <= rect.top() && e.y >= rect.bottom() && e.i != p.i)
         let unique = [...new Set(its.map(x => x.i))];
-        intersections = intersections.concat(unique.map(x => {return {a: x, b: p.i}}));
+        //intersections = intersections.concat(unique.map(x => {return {a: x, b: p.i}}));
+        intersections.splice(intersections.length,0,...unique.map(x => {return {a: x, b: p.i}}));
     })
+
+    intersections.splice(intersections.length, 0, ...rectangleInclusions(rectangles));
+    //intersections = intersections.concat(rectangleInclusions(rectangles));
 
     // create unique pairs
     let uniqueMap = new Map();
@@ -173,6 +187,46 @@ export function lineIntersecions(rectangles) {
     return intersections;
 }
 
+function rectangleInclusions(rectangles) {
+    let Q = [];
+    rectangles.forEach((r,i) => {
+        let interval = {left: r.left(), right: r.right(), index: i};
+        let point = {x: r.x, index:i};
+        Q.push(new seachPoint(i, true, true, r.bottom(), interval))
+        Q.push(new seachPoint(i, true, false, r.top(), interval))
+        Q.push(new seachPoint(i, false, false, r.y, point))
+    })
+    Q.sort((a,b) => a.y < b.y ? -1 : a.y > b.y | 0);
+    let pairs = [];
+
+    // ToDo: replace with interval tree for faster detection
+    let intervals = [];
+    
+    Q.forEach((r,i) => {
+        if(r.isInterval) {
+            if(r.isBottom) {
+                intervals.push(r.data);
+            }
+            else {
+                intervals.splice(intervals.indexOf(r.data),1);
+            }
+        }
+        else {
+            intervals.forEach(iv => {
+                if(iv.index != r.index)
+                {
+                    if(r.data.x > iv.left && r.data.x < iv.right)
+                    {
+                        pairs.push({a: r.index, b: iv.index})
+                    }
+                }
+            })
+        }
+    })
+
+    return pairs;
+}
+
 export function bruteForceIntersections(rectangles) {
     let testIntersections = [];
 
@@ -194,6 +248,9 @@ function removeOverlap(r1, r2, t0 = 0.1) {
     xOverlap = xOverlap < t0 && xOverlap > 0 ? t0 : xOverlap;
     let yOverlap = r1.yOverlap(r2);
     yOverlap = yOverlap < t0 && yOverlap > 0 ? t0 : yOverlap;
+
+    if(xOverlap === 0 && yOverlap === 0)
+        return false;
 
     if(xOverlap === Infinity && yOverlap === Infinity) {
         xOverlap = t0;
@@ -221,6 +278,7 @@ function removeOverlap(r1, r2, t0 = 0.1) {
             r2.y -= yOverlap / 2;
         }
     }
+    return true;
 }
 
 // https://www.w3docs.com/snippets/javascript/how-to-randomize-shuffle-a-javascript-array.html
@@ -452,15 +510,23 @@ export async function rearrange(rectangles) {
     rectangles_sorted.forEach((r,i) => r.y_rank = i)
 
     //console.log(rectangles_sorted);
-    let P = bruteForceIntersections(rectangles_sorted);
-    //let P = lineIntersecions(rectangles_sorted);
+    //let P = bruteForceIntersections(rectangles_sorted);
+    let P = lineIntersecions(rectangles_sorted);
     let d = 0;
+    let removedOverlap = false;
     while(P.length > 0) {
-        console.log(P.length)
+        const currTime = new Date().getTime();
+        if(currTime - startTime > 30000) {
+            return false;
+        }
+        //console.log(P.length)
         shuffleArray(P);
+        removedOverlap = false;
         P.forEach((pair) => {
-            removeOverlap(rectangles_sorted[pair.a], rectangles_sorted[pair.b]);
+            removedOverlap = removedOverlap || removeOverlap(rectangles_sorted[pair.a], rectangles_sorted[pair.b]);
         })
+        if(!removedOverlap)
+            break;
         //repairOrder(rectangles, 0,0, rectangles.length-1);
 
         //repairOrder(rectangles, 0,0, rectangles.length-1);
@@ -473,7 +539,8 @@ export async function rearrange(rectangles) {
             rectangles_sorted = mergeSortX(rectangles_sorted.slice());
             mergeSortAllX(rectangles_sorted)
         }
-        P = bruteForceIntersections(rectangles_sorted);
+        //P = bruteForceIntersections(rectangles_sorted);
+        P = lineIntersecions(rectangles_sorted);
         d++;
     }
 
@@ -482,4 +549,6 @@ export async function rearrange(rectangles) {
 
     console.log("done with rearrange")
     console.log(endTime-startTime)
+
+    return true;
 }
