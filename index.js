@@ -54,22 +54,22 @@ function createIcons() {
     for(const p in iconPaths) {
         icons[p] = L.icon({
             iconUrl: iconPaths[p],
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
         })
     }
     redIcon = L.icon({
         iconUrl: "shapes/default_red.svg",
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
     })
 }
 
 function createMap() {
     defaultIcon = L.icon({
         iconUrl: "shapes/default.svg",
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
     })
 
     createIcons();
