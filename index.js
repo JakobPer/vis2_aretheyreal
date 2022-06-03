@@ -1,5 +1,7 @@
 import {rectangle, rearrange, bruteForceIntersections, lineIntersecions} from "./rectangle.js";
 
+var headings = ["summary","city","state","date_time","shape","duration","stats","report_link","text","posted","city_latitude","city_longitude"]
+
 var csvDialect = {
     "dialect": {
       "csvddfVersion": 1.2,
@@ -49,8 +51,9 @@ var detailsLayer = {}
 var debugLayer = {}
 var linesLayer = {}
 var layerControl = {}
-var parsedData = []
+var globalData = {}
 var cluster = {}
+var dataCount = 0;
 
 function createIcons() {
     for(const p in iconPaths) {
@@ -168,7 +171,7 @@ async function createDetails(rectsToShow) {
         const end = map.unproject(rect.point());
         const p1 = map.unproject(rect.min())
         const p2 = map.unproject(rect.max())
-        const d = parsedData[rect.dataIndex];
+        const d = globalData[rect.dataIndex];
 
         const imgUrl = iconPaths[d.shape] ?? "shapes/default.svg";
 
@@ -207,13 +210,12 @@ async function loadData(csvFile) {
     let data = await fetch(csvFile)
     let dataText = await data.text()
     let csvData = CSV.parse(dataText, csvDialect)
-    let headings = csvData[0]
     // parse csv data and filter invalid entries
     // csvData = csvData.slice(0,300); // for testing
-    parsedData = csvData.map((x,index) => {
+    let parsedData = csvData.map((x,index) => {
         try {
             let data = x
-            let entry = {}
+            let entry = {id: dataCount++}
             for (let i = 0; i < headings.length && i < data.length; i++) {
                entry[headings[i]] = data[i] 
             }
@@ -229,34 +231,33 @@ async function loadData(csvFile) {
         return !(isNaN(x.city_latitude) || isNaN(x.city_longitude)) && x != null;
     })
 
-    parsedData.forEach((x,i) => {
-        let r = new rectangle(0, 0, 270, 120, x.city_latitude, x.city_longitude);
-        r.dataIndex = i;
-        rects.push(r);
-    });
-
     let markers = await Promise.all(parsedData.map((x, i) => {
         return createMarker(parsedData[i])
     }))
 
-    cluster.addLayers(markers);
+    parsedData.forEach((x,i) => {
+        let r = new rectangle(0, 0, 270, 120, x.city_latitude, x.city_longitude);
+        r.dataIndex = x.id;
+        r.marker = markers[i];
+        rects.push(r);
+        globalData[x.id] = x;
+    });
 
-    markers.forEach((m, i) => {
-        if(rects[i]!==null) {
-            rects[i].marker = markers[i];
-            markers[i].rectangle = rects[i];
-        }
-    })
+    cluster.addLayers(markers);
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
 
-    await null;
+    await null; // apprently needed so browser does it async
 
     document.querySelector('#details-button').addEventListener('click', showDetails);
 
     createMap()
 
-    loadData('./data/data.csv');
+    //loadData('./data/data.csv');
     //loadData('./data/nuforc_reports.csv');
+    const chunkCount = 137;
+    for(let i = 0; i < chunkCount; i++) {
+        loadData('./data/data_'+String(i).padStart(3,'0'));
+    }
 })
