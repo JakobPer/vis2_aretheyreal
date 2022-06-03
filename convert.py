@@ -1,4 +1,7 @@
 import csv, sys
+import json
+
+from requests import head
 
 chunkCount = 137
 dataPrefix = 'data/data_'
@@ -8,7 +11,8 @@ filename = 'data/data_000'
 outname = 'data/coords_000'
 
 index = 0
-
+# extract columns
+"""
 for i in range(0, chunkCount):
     num = str(i).zfill(3)
     filename = dataPrefix + num
@@ -25,6 +29,29 @@ for i in range(0, chunkCount):
                     index = index + 1
             except csv.Error as e:
                     sys.exit('file {}, line {}: {}'.format(filename, reader.line_num, e))
+"""
+# to json
+headings = ["summary","city","state","date_time","shape","duration","stats","report_link","text","posted","city_latitude","city_longitude"]
+for i in range(0, chunkCount):
+    num = str(i).zfill(3)
+    filename = dataPrefix + num
+    print(filename)
+
+    with open(filename,newline='', encoding='utf-8') as f:
+        reader = csv.reader(f)
+
+        try:
+            for row in reader:
+                dict = {}
+                for hi in range(len(headings)):
+                    dict[headings[hi]] = row[hi]
+                outname = 'data/json/json_' + str(index).zfill(6)
+                with open(outname,'w',newline='', encoding='utf-8') as out:
+                    json.dump(dict,out)
+                    #writer.writerow([index, row[4], row[10], row[11]])
+                index = index + 1
+        except csv.Error as e:
+                sys.exit('file {}, line {}: {}'.format(filename, reader.line_num, e))
 
 # 4 shape
 # 10/11 lat/long

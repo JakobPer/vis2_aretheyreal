@@ -1,6 +1,7 @@
 import {rectangle, rearrange, bruteForceIntersections, lineIntersecions} from "./rectangle.js";
 
-var headings = ["summary","city","state","date_time","shape","duration","stats","report_link","text","posted","city_latitude","city_longitude"]
+//var headings = ["summary","city","state","date_time","shape","duration","stats","report_link","text","posted","city_latitude","city_longitude"]
+var headings = ["index","shape","city_latitude","city_longitude"]
 
 var csvDialect = {
     "dialect": {
@@ -240,7 +241,6 @@ async function loadData(csvFile) {
         r.dataIndex = x.id;
         r.marker = markers[i];
         rects.push(r);
-        globalData[x.id] = x;
     });
 
     cluster.addLayers(markers);
@@ -258,6 +258,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     //loadData('./data/nuforc_reports.csv');
     const chunkCount = 137;
     for(let i = 0; i < chunkCount; i++) {
-        loadData('./data/data_'+String(i).padStart(3,'0'));
+        loadData('./data/coords_'+String(i).padStart(3,'0'));
     }
 })
