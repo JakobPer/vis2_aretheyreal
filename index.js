@@ -43,12 +43,14 @@ const iconPaths = {
 var icons = {}
 var redIcon = {}
 var map = {}
-var rects = {}
+var rects = []
+var detailUfoLayer = {}
 var detailsLayer = {}
 var debugLayer = {}
 var linesLayer = {}
 var layerControl = {}
 var parsedData = []
+var cluster = {}
 
 function createIcons() {
     for(const p in iconPaths) {
@@ -86,9 +88,16 @@ function createMap() {
     var watercolor = new L.StamenTileLayer("watercolor");
 
 
+    detailUfoLayer = L.layerGroup().addTo(map);
     detailsLayer = L.layerGroup().addTo(map);
     debugLayer = L.layerGroup();
     linesLayer = L.layerGroup().addTo(map);
+
+    cluster = L.markerClusterGroup({
+        chunkedLoading: true,
+        chunkProgress: (processed, total, time) => {console.log("Progress: " + ((processed/total)*100))}
+    })
+    map.addLayer(cluster);
 
     let baseLayers = {
         "Toner": toner,
@@ -97,6 +106,8 @@ function createMap() {
     }
 
     let overlayLayers = {
+        "UFOs": cluster,
+        "Detail UFOs": detailUfoLayer,
         "Details": detailsLayer,
         "Offset Lines" : linesLayer,
         "Debug" : debugLayer
@@ -116,10 +127,9 @@ function getCoords(entry) {
     return {lat: lat, long: long}
 }
 
-async function addPoint(entry, map) {
+async function createMarker(entry) {
     let icon = icons[entry.shape] ?? defaultIcon;
     let marker = L.marker([entry.city_latitude, entry.city_longitude], {icon: icon})
-    map.addLayer(marker)
     return marker;
 }
 
@@ -132,7 +142,6 @@ async function showDetails() {
     rectsToShow.forEach((r)=> {
         const z = map.getZoom();
         const proj = map.project(r.latLong(), z);
-        console.log(proj);
         r.reset(proj);
     });
 
@@ -148,7 +157,9 @@ async function createDetails(rectsToShow) {
         return;
     }
 
+    map.removeLayer(cluster);
     detailsLayer.clearLayers();
+    detailUfoLayer.clearLayers();
     linesLayer.clearLayers();
     debugLayer.clearLayers();
 
@@ -173,6 +184,7 @@ async function createDetails(rectsToShow) {
 
         L.polyline([start, end], {color: 'green'}).addTo(linesLayer);
         L.rectangle([p1, p2]).addTo(debugLayer);
+        detailUfoLayer.addLayer(rect.marker);
         let popup = L.ufopopup({
            minWidth: rect.w - 30, // 20 is CSS padding, compensate a bit more
            maxWidth: rect.w - 30,
@@ -189,13 +201,10 @@ async function createDetails(rectsToShow) {
     })
 }
 
-document.addEventListener("DOMContentLoaded", async function () {
+async function loadData(csvFile) {
 
-    document.querySelector('#details-button').addEventListener('click', showDetails);
-
-    createMap()
-
-    let data = await fetch('./data/data.csv')
+    //let data = await fetch('./data/data.csv')
+    let data = await fetch(csvFile)
     let dataText = await data.text()
     let csvData = CSV.parse(dataText, csvDialect)
     let headings = csvData[0]
@@ -217,28 +226,20 @@ document.addEventListener("DOMContentLoaded", async function () {
            return null 
         }
     }).filter((x,i,a) => {
-        return !(isNaN(x.city_latitude) || isNaN(x.city_longitude))
+        return !(isNaN(x.city_latitude) || isNaN(x.city_longitude)) && x != null;
     })
 
-    let projectedCoords = parsedData.map(x => {
-        return map.project([x.city_latitude, x.city_longitude], map.getZoom())
-    })
-
-    rects = projectedCoords.map((x,i) => {
-        if (x != null) {
-            //return new rectangle(x.x, x.y, Math.random()*5, Math.random()*5);
-            let r = new rectangle(x.x, x.y, 270, 120, parsedData[i].city_latitude, parsedData[i].city_longitude);
-            r.dataIndex = i;
-            return r;
-        }
-        return null;
+    parsedData.forEach((x,i) => {
+        let r = new rectangle(0, 0, 270, 120, x.city_latitude, x.city_longitude);
+        r.dataIndex = i;
+        rects.push(r);
     });
 
-    let cluster = L.markerClusterGroup()
-
     let markers = await Promise.all(parsedData.map((x, i) => {
-        return addPoint(parsedData[i], cluster)
+        return createMarker(parsedData[i])
     }))
+
+    cluster.addLayers(markers);
 
     markers.forEach((m, i) => {
         if(rects[i]!==null) {
@@ -246,39 +247,16 @@ document.addEventListener("DOMContentLoaded", async function () {
             markers[i].rectangle = rects[i];
         }
     })
+}
 
-    map.addLayer(cluster);
-    console.log(cluster)
+document.addEventListener("DOMContentLoaded", async function () {
 
-    // get all the shapes
-    /*
-    let disctinctShapes = [...new Set(parsed.map(x => x.shape))]
-    console.log(disctinctShapes)
-    */
+    await null;
 
+    document.querySelector('#details-button').addEventListener('click', showDetails);
 
-    //const intersections = bruteForceIntersections(rects)
+    createMap()
 
-    // TEST INTERSECTIONS
-    /*
-    const lineIts = lineIntersecions(rects);
-    console.log(intersections.length)
-    console.log(lineIts.length)
-    lineIts.forEach((s,i) => {
-        if(!rects[s.a].intersects(rects[s.b])){
-            console.log("wtf");
-            console.log(rects[s.a])
-            console.log(rects[s.b])
-        }
-    })
-    */
-    // ENDTEST
-
-    /*
-    await rearrange(rects)
-    */
-
-    //createDetails(rects);
-
-    //showDetails();
+    loadData('./data/data.csv');
+    //loadData('./data/nuforc_reports.csv');
 })
