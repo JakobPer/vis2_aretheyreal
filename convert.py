@@ -1,5 +1,8 @@
 import csv, sys
-import json
+import json, os
+
+if not os.path.isdir('data/json'):
+    os.mkdir('data/json')
 
 chunkCount = 137
 dataPrefix = 'data/data_'
