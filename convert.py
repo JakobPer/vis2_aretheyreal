@@ -42,7 +42,11 @@ for i in range(0, chunkCount):
             for row in reader:
                 dict = {}
                 for hi in range(len(headings)):
-                    dict[headings[hi]] = row[hi]
+                    if headings[hi] == "report_link":
+                        link = row[hi]
+                        dict[headings[hi]] = link.replace("webreports", "webreports/reports")
+                    else:
+                        dict[headings[hi]] = row[hi]
                 outname = 'data/json/json_' + str(index).zfill(6)
                 with open(outname,'w',newline='', encoding='utf-8') as out:
                     json.dump(dict,out)

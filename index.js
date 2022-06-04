@@ -99,7 +99,8 @@ function createMap() {
 
     cluster = L.markerClusterGroup({
         chunkedLoading: true,
-        chunkProgress: (processed, total, time) => {console.log("Progress: " + ((processed/total)*100))}
+        chunkProgress: (processed, total, time) => {console.log("Progress: " + ((processed/total)*100))},
+        disableClusteringAtZoom: 13,
     })
     map.addLayer(cluster);
 
@@ -197,6 +198,7 @@ async function createDetails(rectsToShow) {
             <b>City: </b>`+d.city+`<br>
             <b>Duration: </b>`+d.duration+`<br>
             <b>On: </b>`+d.date_time+`<br>
+            <a href="`+d.report_link+`">Link to report</a><br>
         </div>`;
 
         L.polyline([start, end], {color: 'green'}).addTo(linesLayer);
@@ -256,7 +258,7 @@ async function loadData(csvFile) {
     }))
 
     parsedData.forEach((x,i) => {
-        let r = new rectangle(0, 0, 270, 120, x.city_latitude, x.city_longitude);
+        let r = new rectangle(0, 0, 270, 130, x.city_latitude, x.city_longitude);
         r.dataIndex = x.id;
         r.index = x.index;
         r.marker = markers[i];
@@ -276,7 +278,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     //loadData('./data/data.csv');
     //loadData('./data/nuforc_reports.csv');
-    const chunkCount = 137;
+    //const chunkCount = 137;
+    const chunkCount = 1;
     for(let i = 0; i < chunkCount; i++) {
         loadData('./data/coords_'+String(i).padStart(3,'0'));
     }
