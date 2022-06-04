@@ -9,7 +9,6 @@ filename = 'data/data_000'
 outname = 'data/coords_000'
 
 index = 0
-"""
 # extract columns
 for i in range(0, chunkCount):
     num = str(i).zfill(3)
@@ -27,7 +26,8 @@ for i in range(0, chunkCount):
                     index = index + 1
             except csv.Error as e:
                     sys.exit('file {}, line {}: {}'.format(filename, reader.line_num, e))
-"""
+
+index = 0
 # to json
 headings = ["summary","city","state","date_time","shape","duration","stats","report_link","text","posted","city_latitude","city_longitude"]
 for i in range(0, chunkCount):
