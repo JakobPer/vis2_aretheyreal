@@ -118,6 +118,19 @@ function sortedYIndex(array, value) {
     return low;
 }
 
+function sortedYIndexPredecessor(array, value) {
+    var low = 0,
+        high = array.length;
+
+    while (low < high) {
+        var mid = (low + high) >>> 1;
+        if (array[mid].y <= value.y) low = mid + 1;
+        else high = mid;
+    }
+    return low;
+}
+
+
 export function lineIntersecions(rectangles) {
     let Q = [];
     // build a set of all horizontal extents of the rects to perform line sweep
@@ -131,30 +144,37 @@ export function lineIntersecions(rectangles) {
     let R = [];
     let intersections = [];
 
-    Q.forEach((p, i) => {
+    for(let i = 0; i < Q.length; i++) {
+        let p = Q[i];
         let rect = rectangles[p.i];
         if(p.left) {
             // add the horizontal lines sorted by y to R
             let top = {i: p.i, y: rect.top(), top: true}
             let bottom = {i: p.i, y: rect.bottom(), top: false}
+
+            // now all the "horizontal lines" that are in the vertical space of the current rect are intersecting
+            const successor = sortedYIndex(R, bottom);
+            const predecessor = sortedYIndexPredecessor(R, top);
+            if(predecessor > successor) {
+                let its = R.slice(successor, predecessor);
+                //intersections = intersections.concat(unique.map(x => {return {a: x, b: p.i}}));
+                intersections.splice(intersections.length,0,...its.map(x => {return {a: x.i, b: p.i}}));
+            }
+
             // R needs to be sorted by y coords, do a sorted insert with binary search
             // splice is apparently really fast at inserting elements
-            R.splice(sortedYIndex(R, top), 0, top);
-            R.splice(sortedYIndex(R, bottom), 0, bottom);
+            // first top then bottom so we don't shift the indices cause of insertion
+            R.splice(predecessor, 0, top);
+            R.splice(successor, 0, bottom);
         }
         else {
             // remove the "horizontal lines" again
             R.splice(R.findIndex(x => x.i === p.i), 1)
             R.splice(R.findIndex(x => x.i === p.i), 1)
         }
-        // now all the "horizontal lines" that are in the vertical space of the current rect are intersecting
-        let its = R.filter(e => e.y <= rect.top() && e.y >= rect.bottom() && e.i != p.i)
-        let unique = [...new Set(its.map(x => x.i))];
-        //intersections = intersections.concat(unique.map(x => {return {a: x, b: p.i}}));
-        intersections.splice(intersections.length,0,...unique.map(x => {return {a: x, b: p.i}}));
-    })
+    }
 
-    intersections.splice(intersections.length, 0, ...rectangleInclusions(rectangles));
+    //intersections.splice(intersections.length, 0, ...rectangleInclusions(rectangles));
     //intersections = intersections.concat(rectangleInclusions(rectangles));
 
     // create unique pairs

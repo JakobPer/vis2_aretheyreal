@@ -278,8 +278,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     //loadData('./data/data.csv');
     //loadData('./data/nuforc_reports.csv');
-    //const chunkCount = 137;
-    const chunkCount = 1;
+    const chunkCount = 137;
+    //const chunkCount = 1;
     for(let i = 0; i < chunkCount; i++) {
         loadData('./data/coords_'+String(i).padStart(3,'0'));
     }
