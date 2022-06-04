@@ -153,7 +153,19 @@ async function showDetails() {
 }
 
 async function createDetails(rectsToShow) {
+    // clear detail layers
+    detailsLayer.clearLayers();
+    detailUfoLayer.clearLayers();
+    linesLayer.clearLayers();
+    debugLayer.clearLayers();
 
+    // fetch detail data
+    let dataPromises = [];
+    rectsToShow.forEach(r => {
+        dataPromises.push(fetchEntry(r.index));
+    })
+
+    // rearrange
     const success = await rearrange(rectsToShow);
     if(!success) {
         console.log("rearrange ran into timeout");
@@ -161,18 +173,19 @@ async function createDetails(rectsToShow) {
         return;
     }
 
+    // remove the clusters
     map.removeLayer(cluster);
-    detailsLayer.clearLayers();
-    detailUfoLayer.clearLayers();
-    linesLayer.clearLayers();
-    debugLayer.clearLayers();
 
-    rectsToShow.forEach((rect) => {
+    // wait on data
+    let data = await Promise.all(dataPromises);
+
+    // create popups for details and debug stuff
+    rectsToShow.forEach((rect, i) => {
         const start = map.unproject(rect.original_point());
         const end = map.unproject(rect.point());
         const p1 = map.unproject(rect.min())
         const p2 = map.unproject(rect.max())
-        const d = globalData[rect.dataIndex];
+        const d = data[i];
 
         const imgUrl = iconPaths[d.shape] ?? "shapes/default.svg";
 
@@ -203,6 +216,12 @@ async function createDetails(rectsToShow) {
         }).setLatLng(L.latLng(end))
         .setContent(popupContent).addTo(detailsLayer);
     })
+}
+
+async function fetchEntry(id) {
+    let data = await fetch('./data/json/json_'+String(id).padStart(6, '0'))
+    let parsed = await data.json()
+    return parsed
 }
 
 async function loadData(csvFile) {
@@ -239,6 +258,7 @@ async function loadData(csvFile) {
     parsedData.forEach((x,i) => {
         let r = new rectangle(0, 0, 270, 120, x.city_latitude, x.city_longitude);
         r.dataIndex = x.id;
+        r.index = x.index;
         r.marker = markers[i];
         rects.push(r);
     });

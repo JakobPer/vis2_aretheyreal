@@ -1,8 +1,6 @@
 import csv, sys
 import json
 
-from requests import head
-
 chunkCount = 137
 dataPrefix = 'data/data_'
 outPrefix = 'data/coords_'
@@ -11,8 +9,8 @@ filename = 'data/data_000'
 outname = 'data/coords_000'
 
 index = 0
-# extract columns
 """
+# extract columns
 for i in range(0, chunkCount):
     num = str(i).zfill(3)
     filename = dataPrefix + num
