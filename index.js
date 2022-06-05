@@ -101,7 +101,24 @@ function createMap() {
         chunkedLoading: true,
         chunkProgress: (processed, total, time) => {console.log("Progress: " + ((processed/total)*100))},
         disableClusteringAtZoom: 13,
+        zoomToBoundsOnClick: false,
+
     })
+    cluster.on('clusterclick',async function (a) {
+        const markers = a.layer.getAllChildMarkers()
+        let rectsToShow = Array();
+        markers.forEach(m =>
+             rects.filter(r => m.getLatLng().equals(L.latLng(r.lat, r.long))).forEach(f => rectsToShow.push(f))
+        )
+        console.log(rectsToShow)
+        rectsToShow.forEach((r)=> {
+            const z = map.getZoom();
+            const proj = map.project(r.latLong(), z);
+            r.reset(proj);
+        });
+
+        await createDetails(rectsToShow);
+    });
     map.addLayer(cluster);
 
     let baseLayers = {
