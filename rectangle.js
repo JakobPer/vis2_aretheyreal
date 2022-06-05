@@ -178,6 +178,7 @@ export function lineIntersecions(rectangles) {
     //intersections = intersections.concat(rectangleInclusions(rectangles));
 
     // create unique pairs
+    /*
     let uniqueMap = new Map();
 
     intersections.forEach((x,i) => {
@@ -203,6 +204,7 @@ export function lineIntersecions(rectangles) {
             intersections.push({a: k, b: v})
         })
     })
+    */
 
     return intersections;
 }

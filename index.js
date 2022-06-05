@@ -139,8 +139,21 @@ async function createMarker(entry) {
 }
 
 async function showDetails() {
-    console.log("details")
+    const bounds = map.getBounds();
+    const rectsToShow = rects.filter(r => bounds.contains(L.latLng(r.lat, r.long)))
 
+    console.log("showing details for "+ rectsToShow.length + " items")
+
+    rectsToShow.forEach((r)=> {
+        const z = map.getZoom();
+        const proj = map.project(r.latLong(), z);
+        r.reset(proj);
+    });
+
+    await createDetails(rectsToShow);
+}
+
+function intersectionBenchmark() {
     const bounds = map.getBounds();
     const rectsToShow = rects.filter(r => bounds.contains(L.latLng(r.lat, r.long)))
 
@@ -150,7 +163,28 @@ async function showDetails() {
         r.reset(proj);
     });
 
-    await createDetails(rectsToShow);
+    const startTime = new Date().getTime();
+    let intersections = bruteForceIntersections(rectsToShow);
+    const betweentime = new Date().getTime();
+    let lineits = lineIntersecions(rectsToShow);
+    const endTime = new Date().getTime();
+
+    console.log(intersections.length);
+    console.log(lineits.length)
+
+    console.log(betweentime-startTime);
+    console.log(endTime-betweentime);
+
+    /*
+    lineits.forEach(li => {
+        const found = intersections.filter(x => (x.a == li.a && x.b == li.b) || (x.a == li.b && x.b == li.a))
+        if(found.length == 0) {
+            console.log("could not find intersection")
+            console.log(li);
+        }
+    })
+    console.log("intersection check done")
+    */
 }
 
 async function createDetails(rectsToShow) {
@@ -171,7 +205,7 @@ async function createDetails(rectsToShow) {
     if(!success) {
         console.log("rearrange ran into timeout");
         alert("Rearrange ran into timeout");
-        return;
+        //return;
     }
 
     // remove the clusters
@@ -278,8 +312,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     //loadData('./data/data.csv');
     //loadData('./data/nuforc_reports.csv');
-    const chunkCount = 137;
-    //const chunkCount = 1;
+    //const chunkCount = 137;
+    const chunkCount = 10;
     for(let i = 0; i < chunkCount; i++) {
         loadData('./data/coords_'+String(i).padStart(3,'0'));
     }
