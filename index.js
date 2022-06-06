@@ -43,6 +43,8 @@ const iconPaths = {
     "teardrop": "shapes/teardrop.svg"
 }
 
+const MAX_RECTS = 50;
+
 var icons = {}
 var redIcon = {}
 var map = {}
@@ -102,13 +104,18 @@ function createMap() {
         chunkProgress: (processed, total, time) => {console.log("Progress: " + ((processed/total)*100))},
         disableClusteringAtZoom: 13,
         zoomToBoundsOnClick: false,
-
+        spiderfyOnMaxZoom: false,
     })
     cluster.on('clusterclick',async function (a) {
         const markers = a.layer.getAllChildMarkers()
+        if(markers.length > MAX_RECTS)
+        {
+            a.layer.zoomToBounds({padding: [20,20]});
+            return;
+        }
         let rectsToShow = Array();
         markers.forEach(m =>
-            rects.filter(r => m.getLatLng().equals(L.latLng(r.lat, r.long))).forEach(f => rectsToShow.push(f))
+            rects.filter(r => r.marker === m).forEach(f => rectsToShow.push(f))
         )
         rectsToShow.forEach((r)=> {
             const z = map.getZoom();
@@ -188,6 +195,11 @@ function resetRectangles(rectsToShow)
 async function showDetails() {
     const bounds = map.getBounds();
     let rectsToShow = rects.filter(r => bounds.contains(L.latLng(r.lat, r.long)))
+
+    if(rectsToShow.length > MAX_RECTS) {
+        alert("Too many UFOs in view to show the details. Zoom in to get a better view.")
+        return;
+    }
 
     console.log("showing details for "+ rectsToShow.length + " items")
 
