@@ -43,6 +43,32 @@ const iconPaths = {
     "teardrop": "shapes/teardrop.svg"
 }
 
+const colors = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f', '#aaaaaa'];
+const iconColors = {
+    "light": 1,
+    "triangle": 5,
+    "circle": 3,
+    "unknown": 12,
+    "oval": 3,
+    "other": 12,
+    "formation": 10,
+    "sphere": 3,
+    "diamond": 7,
+    "flash": 11,
+    "disk": 3,
+    "delta": 1,
+    "cigar": 2,
+    "fireball": 3,
+    "changing": 0,
+    "rectangle": 7,
+    "egg": 8,
+    "chevron": 1,
+    "cross": 5,
+    "cylinder": 6,
+    "cone": 4,
+    "teardrop": 0
+}
+
 const MAX_RECTS = 50;
 
 var icons = {}
@@ -265,6 +291,11 @@ async function createDetails(rectsToShow) {
         const p2 = map.unproject(rect.max())
         const d = data[i];
 
+        if(d.shape === null || d.shape === '')
+        {
+            d.shape = 'unknown';
+        }
+
         const imgUrl = iconPaths[d.shape] ?? "shapes/default.svg";
 
         const popupContent = 
@@ -278,7 +309,7 @@ async function createDetails(rectsToShow) {
             <a href="`+d.report_link+`">Link to report</a><br>
         </div>`;
 
-        L.polyline([start, end], {color: 'green'}).addTo(linesLayer);
+        L.polyline([start, end], {color: colors[iconColors[d.shape]]}).addTo(linesLayer);
         L.rectangle([p1, p2]).addTo(debugLayer);
         detailUfoLayer.addLayer(rect.marker);
         let popup = L.ufopopup({
