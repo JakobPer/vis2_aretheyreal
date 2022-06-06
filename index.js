@@ -152,7 +152,25 @@ function getCoords(entry) {
 async function createMarker(entry) {
     let icon = icons[entry.shape] ?? defaultIcon;
     let marker = L.marker([entry.city_latitude, entry.city_longitude], {icon: icon})
+    marker.on('click', a => {
+        console.log(a);
+        let rect = rects.filter(r => r.marker === a.sourceTarget);
+        console.log(rect);
+        if(rect != null ) {
+            resetRectangles(rect);
+            createDetails(rect);
+        }
+    })
     return marker;
+}
+
+function resetRectangles(rectsToShow)
+{
+    rectsToShow.forEach((r)=> {
+        const z = map.getZoom();
+        const proj = map.project(r.latLong(), z);
+        r.reset(proj);
+    });
 }
 
 async function showDetails() {
@@ -161,11 +179,7 @@ async function showDetails() {
 
     console.log("showing details for "+ rectsToShow.length + " items")
 
-    rectsToShow.forEach((r)=> {
-        const z = map.getZoom();
-        const proj = map.project(r.latLong(), z);
-        r.reset(proj);
-    });
+    resetRectangles(rectsToShow);
 
     await createDetails(rectsToShow);
 }
@@ -226,7 +240,7 @@ async function createDetails(rectsToShow) {
     }
 
     // remove the clusters
-    map.removeLayer(cluster);
+    //map.removeLayer(cluster);
 
     // wait on data
     let data = await Promise.all(dataPromises);
@@ -258,11 +272,10 @@ async function createDetails(rectsToShow) {
         let popup = L.ufopopup({
            minWidth: rect.w - 30, // 20 is CSS padding, compensate a bit more
            maxWidth: rect.w - 30,
-           //minHeight: rect.h, <=== does not exist
            maxHeight: rect.h - 30,
            offset: L.point(0,rect.h/2 + 15), // 20 is the offset of the bottom tip
            autoPan: false,
-           closeButton: false,
+           closeButton: true,
            autoClose: false,
            closeOnEscape: false,
            closeOnClick: false,
