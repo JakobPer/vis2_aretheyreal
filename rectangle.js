@@ -529,7 +529,7 @@ function mergeSortY(array) {
     return mergeY(mergeSortY(left),mergeSortY(array))
 }
 
-export async function rearrange(rectangles) {
+export function rearrange(rectangles) {
     const startTime = new Date().getTime();
     let rectangles_sorted = rectangles.slice();
     rectangles_sorted.sort((a,b)=> a.x-b.x);

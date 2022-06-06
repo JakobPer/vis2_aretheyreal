@@ -143,14 +143,26 @@ function createMap() {
         markers.forEach(m =>
             rects.filter(r => r.marker === m).forEach(f => rectsToShow.push(f))
         )
-        console.log(rectsToShow)
         rectsToShow.forEach((r)=> {
             const z = map.getZoom();
             const proj = map.project(r.latLong(), z);
             r.reset(proj);
         });
+        let worker = new Worker("rearrange.js", { type: "module" })
+        let rectanglesPost = rectsToShow.map(function (r) { return new rectangle(r.x,r.y,r.w,r.h, r.lat, r.long)});
+        rectanglesPost.forEach( (r,i) => r.index = rectsToShow[i].index)
+        console.log(rectsToShow)
+        console.log(rectanglesPost)
 
-        await createDetails(rectsToShow);
+        worker.postMessage(rectanglesPost);
+        console.log('Message posted to worker');
+        worker.onmessage = async function(e) {
+            rectsToShow = e.data.map(function (r) { return new rectangle(r.x,r.y,r.w,r.h, r.lat, r.long)});
+            rectsToShow.forEach( (r,i) => r.index = rectanglesPost[i].index)
+            console.log(rectsToShow)
+            await createDetails(rectsToShow);
+        }
+
     });
     map.addLayer(cluster);
 
@@ -208,7 +220,7 @@ function resetRectangles(rectsToShow)
 
 async function showDetails() {
     const bounds = map.getBounds();
-    const rectsToShow = rects.filter(r => bounds.contains(L.latLng(r.lat, r.long)))
+    let rectsToShow = rects.filter(r => bounds.contains(L.latLng(r.lat, r.long)))
 
     if(rectsToShow.length > MAX_RECTS) {
         alert("Too many UFOs in view to show the details. Zoom in to get a better view.")
@@ -219,7 +231,20 @@ async function showDetails() {
 
     resetRectangles(rectsToShow);
 
-    await createDetails(rectsToShow);
+    let worker = new Worker("rearrange.js", { type: "module" })
+    let rectanglesPost = rectsToShow.map(function (r) { return new rectangle(r.x,r.y,r.w,r.h, r.lat, r.long)});
+    rectanglesPost.forEach( (r,i) => r.index = rectsToShow[i].index)
+    console.log(rectsToShow)
+    console.log(rectanglesPost)
+
+    worker.postMessage(rectanglesPost);
+    console.log('Message posted to worker');
+    worker.onmessage = async function(e) {
+        rectsToShow = e.data.map(function (r) { return new rectangle(r.x,r.y,r.w,r.h, r.lat, r.long)});
+        rectsToShow.forEach( (r,i) => r.index = rectanglesPost[i].index)
+        console.log(rectsToShow)
+        await createDetails(rectsToShow);
+    }
 }
 
 function intersectionBenchmark() {
@@ -270,12 +295,6 @@ async function createDetails(rectsToShow) {
     })
 
     // rearrange
-    const success = await rearrange(rectsToShow);
-    if(!success) {
-        console.log("rearrange ran into timeout");
-        alert("Rearrange ran into timeout");
-        //return;
-    }
 
     // remove the clusters
     //map.removeLayer(cluster);
@@ -311,7 +330,7 @@ async function createDetails(rectsToShow) {
 
         L.polyline([start, end], {color: colors[iconColors[d.shape]]}).addTo(linesLayer);
         L.rectangle([p1, p2]).addTo(debugLayer);
-        detailUfoLayer.addLayer(rect.marker);
+        //detailUfoLayer.addLayer(rect.marker);
         let popup = L.ufopopup({
            minWidth: rect.w - 30, // 20 is CSS padding, compensate a bit more
            maxWidth: rect.w - 30,
