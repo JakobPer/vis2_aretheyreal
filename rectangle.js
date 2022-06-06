@@ -66,32 +66,36 @@ export class rectangle {
 
     xOverlap(other)
     {
-        if(this.x === other.x) {
+        if(this.x_rank === other.x_rank) {
             return Infinity;
         }
 
+        let overlap = 0
         if(this.x_rank < other.x_rank)
         {
-            return (this.x + this.w/2) - (other.x - other.w/2)
+            overlap =  this.right() - other.left()
         }
         else {
-            return (other.x + other.w/2) - (this.x - this.w/2)
+            overlap =  other.right() - this.left()
         }
+        return overlap > 0 ? overlap : 0;
     }
 
     yOverlap(other)
     {
-        if(this.y === other.y) {
+        if(this.y_rank === other.y_rank) {
             return Infinity;
         }
 
+        let overlap = 0
         if(this.y_rank < other.y_rank)
         {
-            return (this.y + this.h/2) - (other.y - other.h/2)
+            overlap =  this.top() - other.bottom()
         }
         else {
-            return (other.y + other.h/2) - (this.y - this.h/2)
+            overlap =  other.top() - this.bottom();
         }
+        return overlap > 0 ? overlap : 0;
     }
 }
 
@@ -265,42 +269,46 @@ export function bruteForceIntersections(rectangles) {
     return testIntersections
 }
 
-function removeOverlap(r1, r2, t0 = 0.1) {
+function removeOverlap(r1, r2, t0 = 5) {
+    // get both overlaps
     let xOverlap = r1.xOverlap(r2);
-    xOverlap = xOverlap < t0 && xOverlap > 0 ? t0 : xOverlap;
     let yOverlap = r1.yOverlap(r2);
-    yOverlap = yOverlap < t0 && yOverlap > 0 ? t0 : yOverlap;
 
-    if(xOverlap === 0 && yOverlap === 0)
-        return false;
+    let overlapSize = xOverlap < yOverlap ? xOverlap : yOverlap;
+    const d = xOverlap < yOverlap ? 0 : 1;
 
-    if(xOverlap === Infinity && yOverlap === Infinity) {
-        xOverlap = t0;
-        yOverlap = t0;
-    }
+    if (overlapSize > 0 && overlapSize < Infinity)
+    {
+        let retval = true
+        if(overlapSize < t0)
+        {
+            overlapSize = t0;
+            retval = false;
+        }
 
-    if((xOverlap > 0 && xOverlap < Infinity) &&
-        ((xOverlap < yOverlap && yOverlap > 0) || yOverlap <= 0)) {
-        if(r1.x_rank < r2.x_rank) {
-            r1.x -= xOverlap / 2;
-            r2.x += xOverlap / 2;
+        if(d === 0) {
+            if(r1.x_rank < r2.x_rank) {
+                r1.x -= xOverlap / 2;
+                r2.x += xOverlap / 2;
+            }
+            else {
+                r1.x += xOverlap / 2;
+                r2.x -= xOverlap / 2;
+            }
         }
         else {
-            r1.x += xOverlap / 2;
-            r2.x -= xOverlap / 2;
+            if(r1.y_rank < r2.y_rank) {
+                r1.y -= yOverlap / 2;
+                r2.y += yOverlap / 2;
+            }
+            else {
+                r1.y += yOverlap / 2;
+                r2.y -= yOverlap / 2;
+            }
         }
+        return retval;
     }
-    else if(yOverlap > 0 && yOverlap < Infinity) {
-        if(r1.y_rank < r2.y_rank) {
-            r1.y -= yOverlap / 2;
-            r2.y += yOverlap / 2;
-        }
-        else {
-            r1.y += yOverlap / 2;
-            r2.y -= yOverlap / 2;
-        }
-    }
-    return true;
+    return false;
 }
 
 // https://www.w3docs.com/snippets/javascript/how-to-randomize-shuffle-a-javascript-array.html
@@ -523,12 +531,13 @@ function mergeSortY(array) {
 
 export async function rearrange(rectangles) {
     const startTime = new Date().getTime();
-    let rectangles_sorted = mergeSortX(rectangles.slice());
+    let rectangles_sorted = rectangles.slice();
+    rectangles_sorted.sort((a,b)=> a.x-b.x);
     //console.log(rectangles_sorted);
     // after sorting, rank is just the index
     rectangles_sorted.forEach((r,i) => r.x_rank = i)
 
-    rectangles_sorted = mergeSortY(rectangles.slice());
+    rectangles_sorted.sort((a,b)=> a.y-b.y);
     rectangles_sorted.forEach((r,i) => r.y_rank = i)
 
     //console.log(rectangles_sorted);
@@ -549,18 +558,23 @@ export async function rearrange(rectangles) {
         })
         if(!removedOverlap)
             break;
-        //repairOrder(rectangles, 0,0, rectangles.length-1);
 
-        //repairOrder(rectangles, 0,0, rectangles.length-1);
+        /*
+        rectangles_sorted.sort((a,b)=> a.x-b.x);
+        repairOrder(rectangles, 0,0, rectangles.length-1);
+        rectangles_sorted.sort((a,b)=> a.y-b.y);
+        repairOrder(rectangles, 1,0, rectangles.length-1);
+        */
+
         //rectangles_sorted = mergeSortX(rectangles_sorted.slice());
-        if(d%2 === 0) {
-            rectangles_sorted = mergeSortY(rectangles_sorted.slice());
+        //if(d%2 === 0) {
+            rectangles_sorted.sort((a,b)=> a.y-b.y);
             mergeSortAllY(rectangles_sorted)
-        }
-        else {
-            rectangles_sorted = mergeSortX(rectangles_sorted.slice());
+        //}
+        //else {
+            rectangles_sorted.sort((a,b)=> a.x-b.x);
             mergeSortAllX(rectangles_sorted)
-        }
+        //}
         //P = bruteForceIntersections(rectangles_sorted);
         P = lineIntersecions(rectangles_sorted);
         d++;

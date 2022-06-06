@@ -309,7 +309,7 @@ async function loadData(csvFile) {
     }))
 
     parsedData.forEach((x,i) => {
-        let r = new rectangle(0, 0, 270, 130, x.city_latitude, x.city_longitude);
+        let r = new rectangle(0, 0, 200, 200, x.city_latitude, x.city_longitude);
         r.dataIndex = x.id;
         r.index = x.index;
         r.marker = markers[i];
