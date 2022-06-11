@@ -1,4 +1,16 @@
+/**
+ * Rectangle base class
+ */
 export class rectangle {
+    /**
+     * 
+     * @param {Number} x the screen x coordinate
+     * @param {Number} y the screen y coordinate
+     * @param {Number} w the screen width
+     * @param {Number} h the screen height
+     * @param {Number} lat the latitude in degrees
+     * @param {Number} long the longitude in degrees
+     */
     constructor(x,y,w,h, lat, long) {
         this.x = x
         this.y = y
@@ -8,47 +20,80 @@ export class rectangle {
         this.lat = lat;
         this.x_rank = 0
         this.y_rank = 0
+        // remember original position
         this._orig_x = x;
         this._orig_y = y;
+        // dataIndex will be assigned later
         this.dataIndex = -1;
     }
 
+    /**
+     * @returns The minimum point of the rectangel
+     */
     min() {
         return {x: this.x - this.w/2, y: this.y - this.h/2}
     }
 
+    /**
+     * @returns The maximum point of the rectangel
+     */
     max() {
         return {x: this.x + this.w/2, y: this.y + this.h/2}
     }
 
+    /**
+     * @returns The left x pos of the rectangle
+     */
     left() {
         return this.x - this.w / 2;
     }
 
+    /**
+     * @returns The right x pos of the rectangle
+     */
     right() {
         return this.x + this.w / 2;
     }
 
+    /**
+     * @returns The top y pos of the rectangle
+     */
     top() {
         return this.y + this.h / 2;
     }
 
+    /**
+     * @returns The bottom y pos of the rectangle
+     */
     bottom() {
         return this.y - this.h / 2;
     }
 
+    /**
+     * @returns The current point as an array with x at index 0 and y at index 1
+     */
     point () {
         return [this.x, this.y];
     }
 
+    /**
+     * @returns The original point as an array with x at index 0 and y at index 1
+     */
     original_point() {
         return [this._orig_x, this._orig_y];
     }
 
+    /**
+     * @returns The lat long as an array [lat, long]
+     */
     latLong() {
         return [this.lat, this.long];
     }
 
+    /**
+     * Resets the rectangle to the given coordinates, changes orig pos.
+     * @param {[lat, long]} coords 
+     */
     reset(coords) {
         this.x = coords.x;
         this.y = coords.y;
@@ -56,6 +101,11 @@ export class rectangle {
         this._orig_y = this.y;
     }
 
+    /**
+     * Checks for intersection with a given rectangle 
+     * @param {rectangle} rectangle 
+     * @returns true if the rectangles are intersecting
+     */
     intersects(rectangle) {
         let minA = this.min();
         let maxA = this.max();
@@ -64,6 +114,12 @@ export class rectangle {
         return !(maxB.x <= minA.x || minB.x >= maxA.x || maxB.y <= minA.y || minB.y >= maxA.y)
     }
 
+    /**
+     * Calculates the overlap in x direction according to their x ranks.
+     * Return Infinity if the ranks are identical and 0 if there is no overlap. 
+     * @param {rectangle} other 
+     * @returns The overlap in x direction according to their x ranks.
+     */
     xOverlap(other)
     {
         if(this.x_rank === other.x_rank) {
@@ -81,6 +137,12 @@ export class rectangle {
         return overlap > 0 ? overlap : 0;
     }
 
+    /**
+     * Calculates the overlap in y direction according to their y ranks.
+     * Return Infinity if the ranks are identical and 0 if there is no overlap. 
+     * @param {rectangle} other 
+     * @returns The overlap in y direction according to their y ranks.
+     */
     yOverlap(other)
     {
         if(this.y_rank === other.y_rank) {
@@ -99,6 +161,9 @@ export class rectangle {
     }
 }
 
+/**
+ * Small helper class
+ */
 class seachPoint {
     constructor(index, isInterval, isBottom,y, data) {
         this.index = index;
@@ -110,6 +175,12 @@ class seachPoint {
 }
 
 // https://stackoverflow.com/a/21822316
+/**
+ * 
+ * @param {*} array 
+ * @param {*} value value to find the index for
+ * @returns the sorted index of the value into the array
+ */
 function sortedYIndex(array, value) {
     var low = 0,
         high = array.length;
@@ -135,6 +206,11 @@ function sortedYIndexPredecessor(array, value) {
 }
 
 
+/**
+ * Finds the intersections of rectangles by checking if their edges intersect.
+ * @param {rectangle[]} rectangles 
+ * @returns {{a: index; b: index}} index pairs of intersecting rectangles 
+ */
 export function lineIntersecions(rectangles) {
     let Q = [];
     // build a set of all horizontal extents of the rects to perform line sweep
@@ -142,7 +218,7 @@ export function lineIntersecions(rectangles) {
         Q.push({i: i, x: r.left(), left: true});
         Q.push({i: i, x: r.right(), left: false});
     });
-    // sort them by their x pos
+    // sort them by their x pos to perform line sweep
     Q.sort((a, b) => a.x < b.x ? -1 : a.x > b.x | 0);
 
     let R = [];
@@ -178,81 +254,16 @@ export function lineIntersecions(rectangles) {
         }
     }
 
-    //intersections.splice(intersections.length, 0, ...rectangleInclusions(rectangles));
-    //intersections = intersections.concat(rectangleInclusions(rectangles));
-
-    // create unique pairs
-    /*
-    let uniqueMap = new Map();
-
-    intersections.forEach((x,i) => {
-        if(uniqueMap.has(x.a)) {
-            if(!(uniqueMap.has(x.b) && uniqueMap.get(x.b).has(x.a))) {
-                uniqueMap.get(x.a).add(x.b)
-            }
-        }
-        else if(uniqueMap.has(x.b)) {
-            if(!(uniqueMap.has(x.a) && uniqueMap.get(x.a).has(x.b))) {
-                uniqueMap.get(x.b).add(x.a)
-            }
-        }
-        else {
-            uniqueMap.set(x.a, new Set([x.b]))
-        }
-    })
-
-    intersections =[]
-
-    uniqueMap.forEach((val,k) => {
-        val.forEach(v => {
-            intersections.push({a: k, b: v})
-        })
-    })
-    */
-
     return intersections;
 }
 
-function rectangleInclusions(rectangles) {
-    let Q = [];
-    rectangles.forEach((r,i) => {
-        let interval = {left: r.left(), right: r.right(), index: i};
-        let point = {x: r.x, index:i};
-        Q.push(new seachPoint(i, true, true, r.bottom(), interval))
-        Q.push(new seachPoint(i, true, false, r.top(), interval))
-        Q.push(new seachPoint(i, false, false, r.y, point))
-    })
-    Q.sort((a,b) => a.y < b.y ? -1 : a.y > b.y | 0);
-    let pairs = [];
 
-    // ToDo: replace with interval tree for faster detection
-    let intervals = [];
-    
-    Q.forEach((r,i) => {
-        if(r.isInterval) {
-            if(r.isBottom) {
-                intervals.push(r.data);
-            }
-            else {
-                intervals.splice(intervals.indexOf(r.data),1);
-            }
-        }
-        else {
-            intervals.forEach(iv => {
-                if(iv.index != r.index)
-                {
-                    if(r.data.x > iv.left && r.data.x < iv.right)
-                    {
-                        pairs.push({a: r.index, b: iv.index})
-                    }
-                }
-            })
-        }
-    })
-
-    return pairs;
-}
-
+/**
+ * Checks for rectangle intersections by simply checking every combination.
+ * Used as benchmark reference
+ * @param {rectangle[]} rectangles 
+ * @returns {{a: index; b: index}} index pairs of intersecting rectangles 
+ */
 export function bruteForceIntersections(rectangles) {
     let testIntersections = [];
 
@@ -269,24 +280,38 @@ export function bruteForceIntersections(rectangles) {
     return testIntersections
 }
 
+/**
+ * Removes the overlap of two rectangles preserving their orthogonal order.
+ * Doins so by getting the overlaps in both directions and moving them apart
+ * in the direction of the shortest overlap. 
+ * @param {rectangle} r1 the first rectangle
+ * @param {rectangle} r2 the second rectangle
+ * @param {Number} t0 the minimum overlap
+ * @returns true if there was some overlap removed, false otherwise
+ */
 function removeOverlap(r1, r2, t0 = 5) {
     // get both overlaps
     let xOverlap = r1.xOverlap(r2);
     let yOverlap = r1.yOverlap(r2);
 
+    // overlap size is the minimum of both overlaps
     let overlapSize = xOverlap < yOverlap ? xOverlap : yOverlap;
     const d = xOverlap < yOverlap ? 0 : 1;
 
+    // if we actaully have an overlap to remove
     if (overlapSize > 0 && overlapSize < Infinity)
     {
         let retval = true
+        // if the overlap size is smaller then t0 set it to t0 so don't do so infinitely
         if(overlapSize < t0)
         {
             overlapSize = t0;
             retval = false;
         }
 
+        // if x dimension has the minimum overlap
         if(d === 0) {
+            // depending on rank move both into opposite directions
             if(r1.x_rank < r2.x_rank) {
                 r1.x -= xOverlap / 2;
                 r2.x += xOverlap / 2;
@@ -296,6 +321,7 @@ function removeOverlap(r1, r2, t0 = 5) {
                 r2.x -= xOverlap / 2;
             }
         }
+        // do the same in y direction
         else {
             if(r1.y_rank < r2.y_rank) {
                 r1.y -= yOverlap / 2;
@@ -312,6 +338,10 @@ function removeOverlap(r1, r2, t0 = 5) {
 }
 
 // https://www.w3docs.com/snippets/javascript/how-to-randomize-shuffle-a-javascript-array.html
+/**
+ * Shuffles and array randomly
+ * @param {[]} arr 
+ */
 function shuffleArray(arr) {
     arr.sort(() => Math.random() - 0.5);
 }
@@ -529,19 +559,26 @@ function mergeSortY(array) {
     return mergeY(mergeSortY(left),mergeSortY(array))
 }
 
+/**
+ * Perform Rearrange according to the paper "Minimum-Displacement Overlap Removal for Geo-referenced Data Visualization"
+ * https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.13199
+ * 
+ * First finds the orthogonal ranks in both x and y dimension of the rectangles.
+ * As long as there are overlapping rectangles it randomly removes their overlap
+ * and repairs orthogonal order violations.
+ * @param {rectangle[]} rectangles 
+ * @returns The rearranged rctangels
+ */
 export function rearrange(rectangles) {
     const startTime = new Date().getTime();
     let rectangles_sorted = rectangles.slice();
     rectangles_sorted.sort((a,b)=> a.x-b.x);
-    //console.log(rectangles_sorted);
     // after sorting, rank is just the index
     rectangles_sorted.forEach((r,i) => r.x_rank = i)
 
     rectangles_sorted.sort((a,b)=> a.y-b.y);
     rectangles_sorted.forEach((r,i) => r.y_rank = i)
 
-    //console.log(rectangles_sorted);
-    //let P = bruteForceIntersections(rectangles_sorted);
     let P = lineIntersecions(rectangles_sorted);
     let d = 0;
     let removedOverlap = false;

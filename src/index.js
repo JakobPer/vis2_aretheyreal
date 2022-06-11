@@ -1,8 +1,9 @@
 import {rectangle, rearrange, bruteForceIntersections, lineIntersecions} from "./rectangle.js";
 
-//var headings = ["summary","city","state","date_time","shape","duration","stats","report_link","text","posted","city_latitude","city_longitude"]
+// headings of coordinates csv
 var headings = ["index","shape","city_latitude","city_longitude"]
 
+// dialect for the csv library
 var csvDialect = {
     "dialect": {
       "csvddfVersion": 1.2,
@@ -16,8 +17,10 @@ var csvDialect = {
     }
   }
 
+// the default icon
 var defaultIcon = {}
 
+// paths to icons
 const iconPaths = {
     "light": "shapes/light.svg",
     "triangle": "shapes/triangle.svg",
@@ -43,6 +46,7 @@ const iconPaths = {
     "teardrop": "shapes/teardrop.svg"
 }
 
+// colors for the icon lines
 const colors = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f', '#aaaaaa'];
 const iconColors = {
     "light": 1,
@@ -69,21 +73,26 @@ const iconColors = {
     "teardrop": 0
 }
 
+// max number of popups to show
 const MAX_RECTS = 50;
 
+// global vars
 var icons = {}
 var redIcon = {}
 var map = {}
-var rects = []
+var rects = [] // all loaded rectangles
+// layers for the map
 var detailUfoLayer = {}
 var detailsLayer = {}
 var debugLayer = {}
 var linesLayer = {}
 var layerControl = {}
-var globalData = {}
 var cluster = {}
 var dataCount = 0;
 
+/**
+ * Creates the leaflet icons for all the defined shapes.
+ */
 function createIcons() {
     for(const p in iconPaths) {
         icons[p] = L.icon({
@@ -99,6 +108,9 @@ function createIcons() {
     })
 }
 
+/**
+ * Creates the leaflet map and all the controls for it
+ */
 function createMap() {
     defaultIcon = L.icon({
         iconUrl: "shapes/default.svg",
@@ -119,12 +131,13 @@ function createMap() {
     var terrain = new L.StamenTileLayer("terrain");
     var watercolor = new L.StamenTileLayer("watercolor");
 
-
+    // create the layer groups
     detailUfoLayer = L.layerGroup().addTo(map);
     detailsLayer = L.layerGroup().addTo(map);
     debugLayer = L.layerGroup();
     linesLayer = L.layerGroup().addTo(map);
 
+    // create cluster layer
     cluster = L.markerClusterGroup({
         chunkedLoading: true,
         chunkProgress: (processed, total, time) => {console.log("Progress: " + ((processed/total)*100))},
@@ -132,6 +145,7 @@ function createMap() {
         zoomToBoundsOnClick: false,
         spiderfyOnMaxZoom: false,
     })
+    // on cluster click either zoom or display popups
     cluster.on('clusterclick',async function (a) {
         const markers = a.layer.getAllChildMarkers()
         if(markers.length > MAX_RECTS)
@@ -166,6 +180,7 @@ function createMap() {
     });
     map.addLayer(cluster);
 
+    // create layers control
     let baseLayers = {
         "Toner": toner,
         "Terrain": terrain,
@@ -187,6 +202,11 @@ function createMap() {
 
 }
 
+/**
+ * Returns the parsed coordinates of the entry.
+ * @param {*} entry 
+ * @returns 
+ */
 function getCoords(entry) {
     let lat = entry.city_latitude instanceof Number ? entry.city_latitude : parseFloat(entry.city_latitude)
     let long = entry.city_longitude instanceof Number ? entry.city_longitude : parseFloat(entry.city_longitude)
@@ -194,6 +214,12 @@ function getCoords(entry) {
     return {lat: lat, long: long}
 }
 
+/**
+ * Creates a marker for the provided entry. Used to initially create the markers
+ * after loading all the coordinates. 
+ * @param {*} entry 
+ * @returns the created marker.
+ */
 async function createMarker(entry) {
     let icon = icons[entry.shape] ?? defaultIcon;
     let marker = L.marker([entry.city_latitude, entry.city_longitude], {icon: icon})
@@ -209,6 +235,10 @@ async function createMarker(entry) {
     return marker;
 }
 
+/**
+ * resets the rectangles positions according to the current zoom.
+ * @param {Rectangle[]} rectsToShow 
+ */
 function resetRectangles(rectsToShow)
 {
     rectsToShow.forEach((r)=> {
@@ -218,6 +248,10 @@ function resetRectangles(rectsToShow)
     });
 }
 
+/**
+ * Shows the details of all the data points that are currently visible in the viewport. 
+ * Only show the details if there are less than MAX_RECTS in the viewport.
+ */
 async function showDetails() {
     const bounds = map.getBounds();
     let rectsToShow = rects.filter(r => bounds.contains(L.latLng(r.lat, r.long)))
@@ -247,6 +281,9 @@ async function showDetails() {
     }
 }
 
+/**
+ * Used to benchmark the intersections in comparison to brute forcing them.
+ */
 function intersectionBenchmark() {
     const bounds = map.getBounds();
     const rectsToShow = rects.filter(r => bounds.contains(L.latLng(r.lat, r.long)))
@@ -281,6 +318,11 @@ function intersectionBenchmark() {
     */
 }
 
+/**
+ * Clears the shown details, fetches the detail data of the rectangles and
+ * rearranges them to not overlap. Then shows them. 
+ * @param {Rectangle[]} rectsToShow 
+ */
 async function createDetails(rectsToShow) {
     // clear detail layers
     detailsLayer.clearLayers();
@@ -294,11 +336,6 @@ async function createDetails(rectsToShow) {
         dataPromises.push(fetchEntry(r.index));
     })
 
-    // rearrange
-
-    // remove the clusters
-    //map.removeLayer(cluster);
-
     // wait on data
     let data = await Promise.all(dataPromises);
 
@@ -310,6 +347,7 @@ async function createDetails(rectsToShow) {
         const p2 = map.unproject(rect.max())
         const d = data[i];
 
+        // sanitize shape
         if(d.shape === null || d.shape === '')
         {
             d.shape = 'unknown';
@@ -328,9 +366,11 @@ async function createDetails(rectsToShow) {
             <a href="`+d.report_link+`">Link to report</a><br>
         </div>`;
 
+        // create line from origin to new position
         L.polyline([start, end], {color: colors[iconColors[d.shape]]}).addTo(linesLayer);
+        // create debug rectangle
         L.rectangle([p1, p2]).addTo(debugLayer);
-        //detailUfoLayer.addLayer(rect.marker);
+        // create the detail popup for the rectangel
         let popup = L.ufopopup({
            minWidth: rect.w - 30, // 20 is CSS padding, compensate a bit more
            maxWidth: rect.w - 30,
@@ -346,12 +386,23 @@ async function createDetails(rectsToShow) {
     })
 }
 
+/**
+ * Fetches the detail data for a certain entry id. 
+ * @param {Number} id - The entries id
+ * @returns the parsed data
+ */
 async function fetchEntry(id) {
     let data = await fetch('./data/json/json_'+String(id).padStart(6, '0'))
     let parsed = await data.json()
     return parsed
 }
 
+/**
+ * Loads and parses the given coordinates csv file.
+ * Also creates the corresponding rectangles and markers. 
+ * Used in the initial loading step.
+ * @param {String} csvFile 
+ */
 async function loadData(csvFile) {
 
     //let data = await fetch('./data/data.csv')
@@ -359,7 +410,6 @@ async function loadData(csvFile) {
     let dataText = await data.text()
     let csvData = CSV.parse(dataText, csvDialect)
     // parse csv data and filter invalid entries
-    // csvData = csvData.slice(0,300); // for testing
     let parsedData = csvData.map((x,index) => {
         try {
             let data = x
@@ -379,10 +429,12 @@ async function loadData(csvFile) {
         return !(isNaN(x.city_latitude) || isNaN(x.city_longitude)) && x != null;
     })
 
+    // create the markers
     let markers = await Promise.all(parsedData.map((x, i) => {
         return createMarker(parsedData[i])
     }))
 
+    // create the rectangles
     parsedData.forEach((x,i) => {
         let r = new rectangle(0, 0, 200, 200, x.city_latitude, x.city_longitude);
         r.dataIndex = x.id;
@@ -400,11 +452,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     document.querySelector('#details-button').addEventListener('click', showDetails);
 
+    // first create the map
     createMap()
 
     //loadData('./data/data.csv');
     //loadData('./data/nuforc_reports.csv');
     //const chunkCount = 137;
+
+    // load all the coordinates and create their markers and rectangles
     const chunkCount = 10;
     for(let i = 0; i < chunkCount; i++) {
         loadData('./data/coords_'+String(i).padStart(3,'0'));
