@@ -1,5 +1,5 @@
-data/coords_*
-data/json/
-data/data.csv
-data/nuforc_reports.csv
+src/data/coords_*
+src/data/json/
+src/data/data.csv
+src/data/nuforc_reports.csv
 .idea
