@@ -346,12 +346,21 @@ function shuffleArray(arr) {
     arr.sort(() => Math.random() - 0.5);
 }
 
-function repairOrder(rectangles,d, left, right, isordered) {
+/**
+ * repair order algorithm from the paper which does not achieve correct results
+ * should in theorie repair the order of the rank of the rectangles in dimension d
+ * while beforming merge sort
+ * @param rectangles for which the order should be repaired
+ * @param d dimension in which the order should be repaired
+ * @param left index of left side that should be ordered
+ * @param right index of right side that should be ordered
+ */
+function repairOrder(rectangles,d, left, right) {
     if(left < right){
         //split
         let mid = Math.floor((left+right)-1/2);
-        repairOrder(rectangles, d, left, mid, isordered);
-        repairOrder(rectangles, d, mid+1, right, isordered);
+        repairOrder(rectangles, d, left, mid);
+        repairOrder(rectangles, d, mid+1, right);
         let rectangles_new = [...rectangles];
         //merge with rearrange
         let i = left;
@@ -367,7 +376,6 @@ function repairOrder(rectangles,d, left, right, isordered) {
                     i++;
                     k++;
                 } else {
-                    isordered[0] = false;
                     let cavg = 0;
                     let count = 0
                     let cr = rectangles[i].x_rank;
@@ -402,7 +410,6 @@ function repairOrder(rectangles,d, left, right, isordered) {
                     i++;
                     k++;
                 } else {
-                    isordered[0] = false;
                     let cavg = 0;
                     let count = 0
                     let cr = rectangles[i].y_rank;
@@ -437,10 +444,19 @@ function repairOrder(rectangles,d, left, right, isordered) {
 
 }
 
-function mergeSortAllX(sorted) {
+/**
+ * Our own repair order algorithm for the x dimension because the one from the paper does not achieve correct results
+ * The difference to the paper is that if we find two triangles not ordered, we average their x coordinates and also swap their position in the array
+ * instead of averaging every triangle thereafter
+ *
+ *
+ * @param sorted triangles for which the order of their rank should be repaired, ordered ascending by their x coordinates
+ *
+ * basic merge sort implementation from https://stackoverflow.com/questions/63548204/iterative-approach-of-merge-sort-in-javascript by Michael Laszlo
+ */
+function repairOrderOwnX(sorted) {
     var n = sorted.length,
         buffer = new Array(n);
-
     for (var size = 1; size < n; size *= 2) {
         for (var leftStart = 0; leftStart < n; leftStart += 2*size) {
             var left = leftStart,
@@ -469,7 +485,12 @@ function mergeSortAllX(sorted) {
             buffer = temp;
     }
 }
-function mergeSortAllY(sorted) {
+
+/**
+ * Same as repairOrderOwnX but for dimension Y
+ * @param sorted triangles for which the order of their rank should be repaired, ordered ascending by their y coordinates
+ */
+function repairOrderOwnY(sorted) {
     var n = sorted.length,
         buffer = new Array(n);
 
@@ -496,68 +517,14 @@ function mergeSortAllY(sorted) {
                 buffer[i++] = sorted[right++];
             }
         }
-        var temp = sorted,
-            sorted = buffer,
+        var temp = sorted;
+            sorted = buffer;
             buffer = temp;
     }
 }
-function mergeX(left, right) {
-    let arr = []
-    // Break out of loop if any one of the array gets empty
-    while (left.length && right.length) {
-        // Pick the smaller among the smallest element of left and right sub arrays
-        if (left[0].x < right[0].x) {
-            arr.push(left.shift())
-        } else {
-            arr.push(right.shift())
-        }
-    }
 
-    // Concatenating the leftover elements
-    // (in case we didn't go through the entire left or right array)
-    return [ ...arr, ...left, ...right ]
-}
 
-function mergeY(left, right) {
-    let arr = []
-    // Break out of loop if any one of the array gets empty
-    while (left.length && right.length) {
-        // Pick the smaller among the smallest element of left and right sub arrays
-        if (left[0].y < right[0].y) {
-            arr.push(left.shift())
-        } else {
-            arr.push(right.shift())
-        }
-    }
 
-    // Concatenating the leftover elements
-    // (in case we didn't go through the entire left or right array)
-    return [ ...arr, ...left, ...right ]
-}
-
-function mergeSortX(array) {
-    const half = array.length / 2
-
-    // Base case or terminating case
-    if(array.length < 2){
-        return array
-    }
-
-    const left = array.splice(0, half)
-    return mergeX(mergeSortX(left),mergeSortX(array))
-}
-
-function mergeSortY(array) {
-    const half = array.length / 2
-
-    // Base case or terminating case
-    if(array.length < 2){
-        return array
-    }
-
-    const left = array.splice(0, half)
-    return mergeY(mergeSortY(left),mergeSortY(array))
-}
 
 /**
  * Perform Rearrange according to the paper "Minimum-Displacement Overlap Removal for Geo-referenced Data Visualization"
@@ -580,44 +547,28 @@ export function rearrange(rectangles) {
     rectangles_sorted.forEach((r,i) => r.y_rank = i)
 
     let P = lineIntersecions(rectangles_sorted);
-    let d = 0;
     let removedOverlap = false;
     while(P.length > 0) {
         const currTime = new Date().getTime();
+        //timeout after 30 seconds
         if(currTime - startTime > 30000) {
             return false;
         }
-        //console.log(P.length)
         shuffleArray(P);
         removedOverlap = false;
         P.forEach((pair) => {
             removedOverlap = removedOverlap || removeOverlap(rectangles_sorted[pair.a], rectangles_sorted[pair.b]);
         })
-        if(!removedOverlap)
+        if(!removedOverlap) {
             break;
+        }
 
-        /*
-        rectangles_sorted.sort((a,b)=> a.x-b.x);
-        repairOrder(rectangles, 0,0, rectangles.length-1);
         rectangles_sorted.sort((a,b)=> a.y-b.y);
-        repairOrder(rectangles, 1,0, rectangles.length-1);
-        */
-
-        //rectangles_sorted = mergeSortX(rectangles_sorted.slice());
-        //if(d%2 === 0) {
-            rectangles_sorted.sort((a,b)=> a.y-b.y);
-            mergeSortAllY(rectangles_sorted)
-        //}
-        //else {
-            rectangles_sorted.sort((a,b)=> a.x-b.x);
-            mergeSortAllX(rectangles_sorted)
-        //}
-        //P = bruteForceIntersections(rectangles_sorted);
+        repairOrderOwnY(rectangles_sorted)
+        rectangles_sorted.sort((a,b)=> a.x-b.x);
+        repairOrderOwnX(rectangles_sorted)
         P = lineIntersecions(rectangles_sorted);
-        d++;
     }
-
-    //console.log(rectangles_sorted)
     const endTime = new Date().getTime();
 
     console.log("done with rearrange")

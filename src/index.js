@@ -162,18 +162,14 @@ function createMap() {
             const proj = map.project(r.latLong(), z);
             r.reset(proj);
         });
+        //outsource rearrange algorithm to its own thread
         let worker = new Worker("rearrange.js", { type: "module" })
         let rectanglesPost = rectsToShow.map(function (r) { return new rectangle(r.x,r.y,r.w,r.h, r.lat, r.long)});
         rectanglesPost.forEach( (r,i) => {r.index = rectsToShow[i].index; r._orig_x = rectsToShow[i]._orig_x; r._orig_y = rectsToShow[i]._orig_y})
-        console.log(rectsToShow)
-        console.log(rectanglesPost)
-
         worker.postMessage(rectanglesPost);
-        console.log('Message posted to worker');
         worker.onmessage = async function(e) {
             rectsToShow = e.data.map(function (r) { return new rectangle(r.x,r.y,r.w,r.h, r.lat, r.long)});
             rectsToShow.forEach( (r,i) =>{ r.index = rectanglesPost[i].index; r._orig_x = rectanglesPost[i]._orig_x; r._orig_y = rectanglesPost[i]._orig_y})
-            console.log(rectsToShow)
             await createDetails(rectsToShow);
         }
 
@@ -268,11 +264,7 @@ async function showDetails() {
     let worker = new Worker("rearrange.js", { type: "module" })
     let rectanglesPost = rectsToShow.map(function (r) { return new rectangle(r.x,r.y,r.w,r.h, r.lat, r.long)});
     rectanglesPost.forEach( (r,i) => {r.index = rectsToShow[i].index; r._orig_x = rectsToShow[i]._orig_x; r._orig_y = rectsToShow[i]._orig_y})
-    console.log(rectsToShow)
-    console.log(rectanglesPost)
-
     worker.postMessage(rectanglesPost);
-    console.log('Message posted to worker');
     worker.onmessage = async function(e) {
         rectsToShow = e.data.map(function (r) { return new rectangle(r.x,r.y,r.w,r.h, r.lat, r.long)});
         rectsToShow.forEach( (r,i) =>{ r.index = rectanglesPost[i].index; r._orig_x = rectanglesPost[i]._orig_x; r._orig_y = rectanglesPost[i]._orig_y})
