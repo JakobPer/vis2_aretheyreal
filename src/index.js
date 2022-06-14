@@ -379,6 +379,16 @@ async function createDetails(rectsToShow) {
 }
 
 /**
+ * closes all detail pannels
+ * @returns {Promise<void>}
+ */
+async function closeAll(){
+    detailsLayer.clearLayers();
+    linesLayer.clearLayers();
+    debugLayer.clearLayers();
+}
+
+/**
  * Fetches the detail data for a certain entry id. 
  * @param {Number} id - The entries id
  * @returns the parsed data
@@ -443,6 +453,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     await null; // apprently needed so browser does it async
 
     document.querySelector('#details-button').addEventListener('click', showDetails);
+    document.querySelector('#close-all-button').addEventListener('click', closeAll);
 
     // first create the map
     createMap()
