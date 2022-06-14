@@ -145,6 +145,8 @@ function createMap() {
         zoomToBoundsOnClick: false,
         spiderfyOnMaxZoom: false,
     })
+
+
     // on cluster click either zoom or display popups
     cluster.on('clusterclick',async function (a) {
         const markers = a.layer.getAllChildMarkers()
@@ -152,6 +154,7 @@ function createMap() {
         {
             a.layer.zoomToBounds({padding: [20,20]});
             return;
+
         }
         let rectsToShow = Array();
         markers.forEach(m =>
@@ -161,6 +164,7 @@ function createMap() {
             const z = map.getZoom();
             const proj = map.project(r.latLong(), z);
             r.reset(proj);
+
         });
         //outsource rearrange algorithm to its own thread
         let worker = new Worker("rearrange.js", { type: "module" })
@@ -169,9 +173,15 @@ function createMap() {
         worker.postMessage(rectanglesPost);
         worker.onmessage = async function(e) {
             rectsToShow = e.data.map(function (r) { return new rectangle(r.x,r.y,r.w,r.h, r.lat, r.long)});
-            rectsToShow.forEach( (r,i) =>{ r.index = rectanglesPost[i].index; r._orig_x = rectanglesPost[i]._orig_x; r._orig_y = rectanglesPost[i]._orig_y})
+            rectsToShow.forEach( (r,i) =>{ r.index = rectanglesPost[i].index; r._orig_x = rectanglesPost[i]._orig_x; r._orig_y = rectanglesPost[i]._orig_y; })
             await createDetails(rectsToShow);
+
+
+
+            //map.setView(L.latLng(a.layer._cLatLng),map.getZoom())
+
         }
+
 
     });
     map.addLayer(cluster);
@@ -330,7 +340,7 @@ async function createDetails(rectsToShow) {
 
     // wait on data
     let data = await Promise.all(dataPromises);
-
+    var bounds = [];
     // create popups for details and debug stuff
     rectsToShow.forEach((rect, i) => {
         const start = map.unproject(rect.original_point());
@@ -338,7 +348,7 @@ async function createDetails(rectsToShow) {
         const p1 = map.unproject(rect.min())
         const p2 = map.unproject(rect.max())
         const d = data[i];
-
+        bounds.push(end)
         // sanitize shape
         if(d.shape === null || d.shape === '')
         {
@@ -376,6 +386,8 @@ async function createDetails(rectsToShow) {
         }).setLatLng(L.latLng(end))
         .setContent(popupContent).addTo(detailsLayer);
     })
+    var detailsBounds = new L.LatLngBounds(bounds);
+    map.fitBounds(detailsBounds, {padding: [30,30]});
 }
 
 /**
