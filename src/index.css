@@ -45,6 +45,11 @@ html,body {
     z-index: 10000;
 }
 
+.top-center button {
+    width: 100%;
+    margin-bottom: 3px;
+}
+
 .ufo-popup-container {
     -ms-transform-origin: 50% 50%;
     -moz-transform-origin: 50% 50%;
