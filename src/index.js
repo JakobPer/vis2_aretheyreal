@@ -130,7 +130,7 @@ function createMap() {
     map.addLayer(toner);
     var terrain = new L.StamenTileLayer("terrain");
     var watercolor = new L.StamenTileLayer("watercolor");
-
+    map.options.maxZoom = 13;
     // create the layer groups
     detailUfoLayer = L.layerGroup().addTo(map);
     detailsLayer = L.layerGroup().addTo(map);
@@ -387,7 +387,9 @@ async function createDetails(rectsToShow) {
         .setContent(popupContent).addTo(detailsLayer);
     })
     var detailsBounds = new L.LatLngBounds(bounds);
-    map.fitBounds(detailsBounds, {padding: [30,30]});
+    map.options.maxZoom = map.getZoom();
+    map.fitBounds(detailsBounds,{padding: [30,30]} );
+    map.options.maxZoom = 13;
 }
 
 /**
