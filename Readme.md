@@ -2,7 +2,7 @@
 
 ## By Jakob Pernsteiner and Elias Kristmann
 
-This project provides an exploratory visualization for UFO sightings reported to the [National UFO Reporting Center](https://nuforc.org/). It uses an aggregated dataset on [data.world](https://data.world/timothyrenner/ufo-sightings) created by Timothy Renner. The visualization provides the possibility to view the details of multiple spatial data points at the same time by positioning the popups via [Minimum-Displacement Overlap Removal for Geo-referenced Data Visualization](https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.13199).
+This project provides an exploratory visualization for UFO sightings reported to the [National UFO Reporting Center](https://nuforc.org/) and was created as a project for the university course [Visualization 2](https://www.cg.tuwien.ac.at/courses/Vis2/HallOfFame/) at TU-Wien. It uses an aggregated dataset of [data.world](https://data.world/timothyrenner/ufo-sightings) created by Timothy Renner. The visualization provides the possibility to view the details of multiple spatial data points at the same time by positioning the popups via [Minimum-Displacement Overlap Removal for Geo-referenced Data Visualization [M. van Garderen,B. Pampel,A. Nocaj,U. Brandes]](https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.13199).
 
 ## Links
 
