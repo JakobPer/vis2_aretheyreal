@@ -87,6 +87,18 @@ var linesLayer = {}
 var layerControl = {}
 var cluster = {}
 var dataCount = 0;
+var loading = {}; // the loading div
+var isLoading = false;
+
+function startLoading(){
+    loading.style.visibility = "visible";
+    isLoading = true;
+}
+
+function stopLoading(){
+    loading.style.visibility = "collapse";
+    isLoading = false;
+}
 
 /**
  * Creates the leaflet icons for all the defined shapes.
@@ -145,6 +157,8 @@ function createMap() {
 
     // on cluster click either zoom or display popups
     cluster.on('clusterclick',async function (a) {
+        if(isLoading)
+            return;
         const markers = a.layer.getAllChildMarkers()
         if(markers.length > MAX_RECTS)
         {
@@ -160,8 +174,8 @@ function createMap() {
             const z = map.getZoom();
             const proj = map.project(r.latLong(), z);
             r.reset(proj);
-
         });
+        startLoading();
         //outsource rearrange algorithm to its own thread
         let worker = new Worker("rearrange.js", { type: "module" })
         let rectanglesPost = rectsToShow.map(function (r) { return new rectangle(r.x,r.y,r.w,r.h, r.lat, r.long)});
@@ -171,6 +185,8 @@ function createMap() {
             rectsToShow = e.data.map(function (r) { return new rectangle(r.x,r.y,r.w,r.h, r.lat, r.long)});
             rectsToShow.forEach( (r,i) =>{ r.index = rectanglesPost[i].index; r._orig_x = rectanglesPost[i]._orig_x; r._orig_y = rectanglesPost[i]._orig_y; })
             await createDetails(rectsToShow);
+
+            stopLoading();
 
 
 
@@ -224,12 +240,14 @@ async function createMarker(entry) {
     let icon = icons[entry.shape] ?? defaultIcon;
     let marker = L.marker([entry.city_latitude, entry.city_longitude], {icon: icon})
     marker.on('click', a => {
-        console.log(a);
+        if(isLoading)
+            return;
         let rect = rects.filter(r => r.marker === a.sourceTarget);
-        console.log(rect);
         if(rect != null ) {
+            startLoading();
             resetRectangles(rect);
             createDetails(rect);
+            stopLoading();
         }
     })
     return marker;
@@ -253,6 +271,9 @@ function resetRectangles(rectsToShow)
  * Only show the details if there are less than MAX_RECTS in the viewport.
  */
 async function showDetails() {
+    if(isLoading)
+        return;
+
     const bounds = map.getBounds();
     let rectsToShow = rects.filter(r => bounds.contains(L.latLng(r.lat, r.long)))
 
@@ -263,6 +284,7 @@ async function showDetails() {
 
     console.log("showing details for "+ rectsToShow.length + " items")
 
+    startLoading();
     resetRectangles(rectsToShow);
 
     let worker = new Worker("rearrange.js", { type: "module" })
@@ -274,6 +296,7 @@ async function showDetails() {
         rectsToShow.forEach( (r,i) =>{ r.index = rectanglesPost[i].index; r._orig_x = rectanglesPost[i]._orig_x; r._orig_y = rectanglesPost[i]._orig_y})
         console.log(rectsToShow)
         await createDetails(rectsToShow);
+        stopLoading();
     }
 }
 
@@ -457,6 +480,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     document.querySelector('#details-button').addEventListener('click', showDetails);
     document.querySelector('#close-all-button').addEventListener('click', closeAll);
+    loading = document.getElementById("loading");
 
     // first create the map
     createMap()
@@ -466,7 +490,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     //const chunkCount = 137;
 
     // load all the coordinates and create their markers and rectangles
-    const chunkCount = 137;
+    const chunkCount = 10;
     for(let i = 0; i < chunkCount; i++) {
         loadData('./data/coords_'+String(i).padStart(3,'0'));
     }
