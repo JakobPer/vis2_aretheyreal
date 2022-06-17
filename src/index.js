@@ -82,9 +82,7 @@ var redIcon = {}
 var map = {}
 var rects = [] // all loaded rectangles
 // layers for the map
-var detailUfoLayer = {}
 var detailsLayer = {}
-var debugLayer = {}
 var linesLayer = {}
 var layerControl = {}
 var cluster = {}
@@ -122,8 +120,8 @@ function createMap() {
 
     map = L.map('map', {
         preferCanvas: true,
-        center: [38.930771, -101.303710],
-        zoom: 6
+        center: [0, 0],
+        zoom: 2
     });
 
     var toner = new L.StamenTileLayer("toner-lite");
@@ -132,9 +130,7 @@ function createMap() {
     var watercolor = new L.StamenTileLayer("watercolor");
     map.options.maxZoom = 13;
     // create the layer groups
-    detailUfoLayer = L.layerGroup().addTo(map);
     detailsLayer = L.layerGroup().addTo(map);
-    debugLayer = L.layerGroup();
     linesLayer = L.layerGroup().addTo(map);
 
     // create cluster layer
@@ -195,10 +191,8 @@ function createMap() {
 
     let overlayLayers = {
         "UFOs": cluster,
-        "Detail UFOs": detailUfoLayer,
         "Details": detailsLayer,
         "Offset Lines" : linesLayer,
-        "Debug" : debugLayer
     }
 
     layerControl = L.control.layers(baseLayers, overlayLayers, {
@@ -328,9 +322,7 @@ function intersectionBenchmark() {
 async function createDetails(rectsToShow) {
     // clear detail layers
     detailsLayer.clearLayers();
-    detailUfoLayer.clearLayers();
     linesLayer.clearLayers();
-    debugLayer.clearLayers();
 
     // fetch detail data
     let dataPromises = [];
@@ -370,8 +362,6 @@ async function createDetails(rectsToShow) {
 
         // create line from origin to new position
         L.polyline([start, end], {color: colors[iconColors[d.shape]]}).addTo(linesLayer);
-        // create debug rectangle
-        L.rectangle([p1, p2]).addTo(debugLayer);
         // create the detail popup for the rectangel
         let popup = L.ufopopup({
            minWidth: rect.w - 30, // 20 is CSS padding, compensate a bit more
@@ -399,7 +389,6 @@ async function createDetails(rectsToShow) {
 async function closeAll(){
     detailsLayer.clearLayers();
     linesLayer.clearLayers();
-    debugLayer.clearLayers();
 }
 
 /**
@@ -477,7 +466,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     //const chunkCount = 137;
 
     // load all the coordinates and create their markers and rectangles
-    const chunkCount = 10;
+    const chunkCount = 137;
     for(let i = 0; i < chunkCount; i++) {
         loadData('./data/coords_'+String(i).padStart(3,'0'));
     }
