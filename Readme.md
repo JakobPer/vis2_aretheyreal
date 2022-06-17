@@ -4,7 +4,13 @@
 
 This project provides an exploratory visualization for UFO sightings reported to the [National UFO Reporting Center](https://nuforc.org/). It uses an aggregated dataset on [data.world](https://data.world/timothyrenner/ufo-sightings) created by Timothy Renner. The visualization provides the possibility to view the details of multiple spatial data points at the same time by positioning the popups via [Minimum-Displacement Overlap Removal for Geo-referenced Data Visualization](https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.13199).
 
-The website and its source code can be found [HERE](src).
+## Links
+
+[Website](bin)
+
+[Source Code](https://github.com/JakobPer/vis2_aretheyreal)
+
+[Documentation](doc)
 
 # Description
 

@@ -1,5 +1,7 @@
-src/data/coords_*
-src/data/json/
-src/data/data.csv
-src/data/nuforc_reports.csv
+bin/data/coords_*
+bin/data/json/
+bin/data/data.csv
+bin/data/nuforc_reports.csv
 .idea
+node_modules
+doc
