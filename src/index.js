@@ -490,8 +490,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     //const chunkCount = 137;
 
     // load all the coordinates and create their markers and rectangles
-    const chunkCount = 10;
+    startLoading();
+    const chunkCount = 137;
+    var promises = [];
     for(let i = 0; i < chunkCount; i++) {
-        loadData('./data/coords_'+String(i).padStart(3,'0'));
+        promises.push(loadData('./data/coords_'+String(i).padStart(3,'0')));
     }
+    Promise.all(promises).then(x => stopLoading());
 })
