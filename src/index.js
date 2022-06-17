@@ -187,11 +187,6 @@ function createMap() {
             await createDetails(rectsToShow);
 
             stopLoading();
-
-
-
-            //map.setView(L.latLng(a.layer._cLatLng),map.getZoom())
-
         }
 
 
@@ -484,10 +479,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // first create the map
     createMap()
-
-    //loadData('./data/data.csv');
-    //loadData('./data/nuforc_reports.csv');
-    //const chunkCount = 137;
 
     // load all the coordinates and create their markers and rectangles
     startLoading();
